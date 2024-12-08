@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1010096856155",
+    "project_id": "neighbourhoodwatchcompanion",
+    "storage_bucket": "neighbourhoodwatchcompanion.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1010096856155:android:d8303388b4fc83109ff37e",
+        "android_client_info": {
+          "package_name": "com.srg.neighbourhoodwatchcompanion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLDTGJ4_Fraq__Z9mWKEzTQ56V9XIjvfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
