@@ -17,6 +17,7 @@ abstract class MvvmViewModel : ViewModel() {
         Timber.tag(SAFE_LAUNCH_EXCEPTION).e(exception)
         handleError(exception)
     }
+    
 
     open fun handleError(exception: Throwable) {}
 

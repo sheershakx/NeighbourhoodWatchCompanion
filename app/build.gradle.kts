@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.auth)
+    implementation(libs.supabase.ktor)
     implementation(libs.supabase.realtime)
     implementation(libs.supabase.postgrest)
     implementation(project(":framework"))

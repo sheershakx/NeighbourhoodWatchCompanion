@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.NeighbourhoodWatchCompanionTheme
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.auth.LoginScreen
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.auth.RegisterScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,7 +36,8 @@ class MainActivity : ComponentActivity() {
 fun RootView(innerPadding: PaddingValues) {
     Column(modifier = Modifier.padding(innerPadding)) {
         //attach any view as per app state and requirement
-        RegisterScreen()
+        LoginScreen()
+//        RegisterScreen()
     }
 }
 

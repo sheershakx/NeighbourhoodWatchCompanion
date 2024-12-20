@@ -1,17 +1,30 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.auth
 
 import android.util.Patterns
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.base.mvi.MviViewModel
+import com.srg.framework.extension.cast
+import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.auth.status.SessionSource
+import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import timber.log.Timber
+import javax.inject.Inject
+import com.srg.neighbourhoodwatchcompanion.common.StringResources as SR
 
 
-class AuthViewModel(
-    private val savedStateHandle: SavedStateHandle
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val supabaseAuth: Auth
 ) : MviViewModel<BaseViewState<AuthState>, AuthEvent>() {
 
     companion object {
@@ -20,12 +33,35 @@ class AuthViewModel(
         const val CONFIRM_PASSWORD = "confirm_password"
     }
 
+
+
+    init {
+        safeLaunch {
+            observeAuthSessions()
+        }
+    }
+
+
     override fun onTriggerEvent(eventType: AuthEvent) {
-        when(eventType){
+        when (eventType) {
             is AuthEvent.Login -> {
-                // do auth event process
                 safeLaunch {
                     setState(BaseViewState.Loading)
+                    supabaseAuth.signInWith(Email) {
+                        email = emailValue.value.first
+                        password = passwordValue.value.first
+                    }
+                }
+                // do login event process
+            }
+
+            is AuthEvent.Register -> {
+                safeLaunch {
+                    setState(BaseViewState.Loading)
+                    supabaseAuth.signUpWith(Email) {
+                        email = emailValue.value.first
+                        password = passwordValue.value.first
+                    }
                 }
             }
         }
@@ -38,7 +74,53 @@ class AuthViewModel(
     val confirmPasswordValue = savedStateHandle.getStateFlow(CONFIRM_PASSWORD, Pair("", ""))
 
 
-    fun isFormValid() =
+    fun setActiveAuthScreen(authScreen: AuthScreen) {
+        setState(BaseViewState.Data(AuthState(isInAuthScreen = authScreen)))
+    }
+
+
+    fun getCurrentAuthState(): AuthState? {
+        return if (uiState.value is BaseViewState.Data){
+            uiState.value.cast<BaseViewState.Data<AuthState>>().value
+        }else{
+            null
+        }
+    }
+
+    private suspend fun observeAuthSessions() {
+        supabaseAuth.sessionStatus.collect {
+            when (it) {
+                is SessionStatus.Authenticated -> {
+                    when (it.source) { //Check the source of the session
+                        is SessionSource.SignUp -> {
+                            setState(BaseViewState.Data(AuthState(userRegistrationState = it.session.user)))
+                            //collect data and redirect to screen
+                        }
+
+                        is SessionSource.SignIn -> {
+                            setState(BaseViewState.Data(AuthState(isUserLoggedIn = true, userRegistrationState = it.session.user)))
+                            //listen upon sign in
+                        }
+
+                        else -> {}
+                    }
+                }
+
+                SessionStatus.Initializing -> Timber.d("Initializing")
+                is SessionStatus.RefreshFailure -> Timber.d("Refresh failure ${it.cause}") //Either a network error or a internal server error
+                is SessionStatus.NotAuthenticated -> {
+                    if (it.isSignOut) {
+                        Timber.d("User signed out")
+                    } else {
+                        Timber.d("User not signed in")
+                    }
+                }
+            }
+        }
+
+    }
+
+    fun isRegistrationFormValid() =
         combine(
             emailValue,
             passwordValue,
@@ -48,28 +130,39 @@ class AuthViewModel(
             email.second.isEmpty() && password.second.isEmpty() && confirmPassword.second.isEmpty()
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(3000), false)
 
+    fun isLoginFormValid() =
+        combine(
+            emailValue,
+            passwordValue,
+        ) { email, password ->
+            if (emailValue.value.first.isEmpty() || passwordValue.value.first.isEmpty()) return@combine false
+            email.second.isEmpty() && password.second.isEmpty()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(3000), false)
 
     /**
      * Input validator functions
      * */
     fun emailValidator(email: String): String {
-        return if (email.isEmpty()) return "empty"
-        else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) "email format"
+        Timber.d("CURRENT STATE= ${getCurrentAuthState().toString()}")
+        return if (email.isEmpty()) return SR.EMPTY_EMAIL
+        else if (getCurrentAuthState()?.isInAuthScreen != AuthScreen.LOGIN_SCREEN  && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) SR.INCORRECT_EMAIL_FORMAT
         else ""
     }
 
+
     fun passwordValidator(password: String): String {
-        return if (password.isEmpty()) "empty"
-        else if (password.length < 8) "length"
-        else if (!password.matches(".*[A-Z].*".toRegex())) "uppercase"
-        else if (!password.matches(".*[@#\$%^&+=].*".toRegex())) "special character"
-        else if (!password.matches(".*[0-9].*".toRegex())) "number"
+        return if (password.isEmpty()) SR.EMPTY_PASSWORD
+        else if (getCurrentAuthState()?.isInAuthScreen == AuthScreen.LOGIN_SCREEN) ""
+        else if (password.length < 8) SR.SHORT_PASSWORD
+//        else if (!password.matches(".*[A-Z].*".toRegex())) "uppercase"  // no need right now
+        else if (!password.matches(".*[@#\$%^&+=].*".toRegex())) SR.SPECIAL_CHARACTER_PASSWORD
+//        else if (!password.matches(".*[0-9].*".toRegex())) "number" // no need right now
         else ""
     }
 
     fun confirmPasswordValidator(confirmPassword: String): String {
-        return if (confirmPassword.isEmpty()) "empty"
-        else if (confirmPassword != passwordValue.value.first) "password doesn't match"
+        return if (confirmPassword.isEmpty()) SR.EMPTY_PASSWORD
+        else if (confirmPassword != passwordValue.value.first) SR.MISMATCH_PASSWORD
         else ""
     }
 
@@ -97,5 +190,11 @@ class AuthViewModel(
             confirmPassword,
             confirmPasswordValidator(confirmPassword)
         )
+    }
+
+
+
+    fun clearState(){
+        setState(BaseViewState.Empty)
     }
 }
