@@ -2,4 +2,13 @@
 <resources>
 
     <style name="Theme.NeighbourhoodWatchCompanion" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.NeighbourhoodWatchCompanion.Splash" parent="Theme.SplashScreen">
+        <!-- Customize splash screen background -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.NeighbourhoodWatchCompanion</item>
+    </style>
+
+
 </resources>
