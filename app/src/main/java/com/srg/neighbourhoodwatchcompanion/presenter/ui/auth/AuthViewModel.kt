@@ -2,17 +2,21 @@ package com.srg.neighbourhoodwatchcompanion.presenter.ui.auth
 
 import android.util.Patterns
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.base.mvi.MviViewModel
 import com.srg.framework.extension.cast
+import com.srg.framework.extension.toJson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionSource
 import io.github.jan.supabase.auth.status.SessionStatus
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -24,7 +28,7 @@ import com.srg.neighbourhoodwatchcompanion.common.StringResources as SR
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val supabaseAuth: Auth
+    private val supabaseAuth: Auth,
 ) : MviViewModel<BaseViewState<AuthState>, AuthEvent>() {
 
     companion object {
@@ -73,19 +77,13 @@ class AuthViewModel @Inject constructor(
     val passwordValue = savedStateHandle.getStateFlow(PASSWORD, Pair("", ""))
     val confirmPasswordValue = savedStateHandle.getStateFlow(CONFIRM_PASSWORD, Pair("", ""))
 
+    private val _currentScreen= MutableStateFlow(AuthScreen.LOGIN_SCREEN)
+    val currentScreen:StateFlow<AuthScreen> get() = _currentScreen
 
-    fun setActiveAuthScreen(authScreen: AuthScreen) {
-        setState(BaseViewState.Data(AuthState(isInAuthScreen = authScreen)))
+    fun setCurrentScreen(authScreen: AuthScreen){
+        _currentScreen.value=authScreen
     }
 
-
-    fun getCurrentAuthState(): AuthState? {
-        return if (uiState.value is BaseViewState.Data){
-            uiState.value.cast<BaseViewState.Data<AuthState>>().value
-        }else{
-            null
-        }
-    }
 
     private suspend fun observeAuthSessions() {
         supabaseAuth.sessionStatus.collect {
@@ -98,11 +96,14 @@ class AuthViewModel @Inject constructor(
                         }
 
                         is SessionSource.SignIn -> {
-                            setState(BaseViewState.Data(AuthState(isUserLoggedIn = true, userRegistrationState = it.session.user)))
+                            setState(BaseViewState.Data(AuthState(isUserLoggedIn = true)))
                             //listen upon sign in
                         }
 
-                        else -> {}
+
+                        else -> {
+                            Timber.d("Session Source ${it.source}")
+                        }
                     }
                 }
 
@@ -115,6 +116,7 @@ class AuthViewModel @Inject constructor(
                         Timber.d("User not signed in")
                     }
                 }
+
             }
         }
 
@@ -143,16 +145,16 @@ class AuthViewModel @Inject constructor(
      * Input validator functions
      * */
     fun emailValidator(email: String): String {
-        Timber.d("CURRENT STATE= ${getCurrentAuthState().toString()}")
+        Timber.d("CURRENT STATE= $currentScreen")
         return if (email.isEmpty()) return SR.EMPTY_EMAIL
-        else if (getCurrentAuthState()?.isInAuthScreen != AuthScreen.LOGIN_SCREEN  && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) SR.INCORRECT_EMAIL_FORMAT
+        else if (currentScreen.value != AuthScreen.LOGIN_SCREEN  && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) SR.INCORRECT_EMAIL_FORMAT
         else ""
     }
 
 
     fun passwordValidator(password: String): String {
         return if (password.isEmpty()) SR.EMPTY_PASSWORD
-        else if (getCurrentAuthState()?.isInAuthScreen == AuthScreen.LOGIN_SCREEN) ""
+        else if (currentScreen.value== AuthScreen.LOGIN_SCREEN) ""
         else if (password.length < 8) SR.SHORT_PASSWORD
 //        else if (!password.matches(".*[A-Z].*".toRegex())) "uppercase"  // no need right now
         else if (!password.matches(".*[@#\$%^&+=].*".toRegex())) SR.SPECIAL_CHARACTER_PASSWORD

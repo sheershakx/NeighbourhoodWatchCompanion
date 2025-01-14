@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.extension.cast
 import com.srg.neighbourhoodwatchcompanion.common.InputValidationTextField
@@ -30,7 +31,7 @@ import com.srg.neighbourhoodwatchcompanion.common.StringResources
 import com.srg.neighbourhoodwatchcompanion.common.showToast
 import io.github.jan.supabase.exceptions.BadRequestRestException
 
-
+@Destination
 @Composable
 fun RegisterScreen(
     viewModel: AuthViewModel = hiltViewModel()
@@ -41,9 +42,10 @@ fun RegisterScreen(
     val password by viewModel.passwordValue.collectAsState()
     val confirmPassword by viewModel.confirmPasswordValue.collectAsState()
     val isFormValid by viewModel.isRegistrationFormValid().collectAsState()
+    viewModel.setCurrentScreen(AuthScreen.REGISTER_SCREEN)
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.setActiveAuthScreen(AuthScreen.REGISTER_SCREEN)
+        viewModel.setCurrentScreen(AuthScreen.REGISTER_SCREEN)
     }
 
     LaunchedEffect(key1 = uiState) {
@@ -71,7 +73,6 @@ fun RegisterScreen(
             else -> {}
         }
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize(),

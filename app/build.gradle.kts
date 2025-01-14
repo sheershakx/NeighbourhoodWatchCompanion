@@ -7,7 +7,12 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.dagger.hilt.android)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.serializable)
+    alias(libs.plugins.kotlinx.serialization)
+
+
 
 }
 
@@ -68,10 +73,13 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.splashScreen)
     implementation(libs.timber)
     implementation(libs.firebase.crashlytics)
     implementation(libs.dagger.hilt)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.compose.destination)
+    ksp(libs.compose.destination.ksp)
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.auth)
     implementation(libs.supabase.ktor)
