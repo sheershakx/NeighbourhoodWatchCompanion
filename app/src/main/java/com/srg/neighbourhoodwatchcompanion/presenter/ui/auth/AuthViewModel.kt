@@ -9,6 +9,9 @@ import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.base.mvi.MviViewModel
 import com.srg.framework.extension.cast
 import com.srg.framework.extension.toJson
+import com.srg.framework.network.apiCall
+import com.srg.neighbourhoodwatchcompanion.data.model.AuthParams
+import com.srg.neighbourhoodwatchcompanion.domain.usecase.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -19,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 import javax.inject.Inject
@@ -29,6 +33,7 @@ import com.srg.neighbourhoodwatchcompanion.common.StringResources as SR
 class AuthViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val supabaseAuth: Auth,
+    private val loginUseCase: LoginUseCase
 ) : MviViewModel<BaseViewState<AuthState>, AuthEvent>() {
 
     companion object {
@@ -36,7 +41,6 @@ class AuthViewModel @Inject constructor(
         const val PASSWORD = "password"
         const val CONFIRM_PASSWORD = "confirm_password"
     }
-
 
 
     init {
@@ -51,12 +55,9 @@ class AuthViewModel @Inject constructor(
             is AuthEvent.Login -> {
                 safeLaunch {
                     setState(BaseViewState.Loading)
-                    supabaseAuth.signInWith(Email) {
-                        email = emailValue.value.first
-                        password = passwordValue.value.first
-                    }
+                    loginUseCase(AuthParams(emailValue.value.first, passwordValue.value.first))
+                    // do login event process
                 }
-                // do login event process
             }
 
             is AuthEvent.Register -> {
@@ -77,11 +78,11 @@ class AuthViewModel @Inject constructor(
     val passwordValue = savedStateHandle.getStateFlow(PASSWORD, Pair("", ""))
     val confirmPasswordValue = savedStateHandle.getStateFlow(CONFIRM_PASSWORD, Pair("", ""))
 
-    private val _currentScreen= MutableStateFlow(AuthScreen.LOGIN_SCREEN)
-    val currentScreen:StateFlow<AuthScreen> get() = _currentScreen
+    private val _currentScreen = MutableStateFlow(AuthScreen.LOGIN_SCREEN)
+    val currentScreen: StateFlow<AuthScreen> get() = _currentScreen
 
-    fun setCurrentScreen(authScreen: AuthScreen){
-        _currentScreen.value=authScreen
+    fun setCurrentScreen(authScreen: AuthScreen) {
+        _currentScreen.value = authScreen
     }
 
 
@@ -147,14 +148,17 @@ class AuthViewModel @Inject constructor(
     fun emailValidator(email: String): String {
         Timber.d("CURRENT STATE= $currentScreen")
         return if (email.isEmpty()) return SR.EMPTY_EMAIL
-        else if (currentScreen.value != AuthScreen.LOGIN_SCREEN  && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) SR.INCORRECT_EMAIL_FORMAT
+        else if (currentScreen.value != AuthScreen.LOGIN_SCREEN && !Patterns.EMAIL_ADDRESS.matcher(
+                email
+            ).matches()
+        ) SR.INCORRECT_EMAIL_FORMAT
         else ""
     }
 
 
     fun passwordValidator(password: String): String {
         return if (password.isEmpty()) SR.EMPTY_PASSWORD
-        else if (currentScreen.value== AuthScreen.LOGIN_SCREEN) ""
+        else if (currentScreen.value == AuthScreen.LOGIN_SCREEN) ""
         else if (password.length < 8) SR.SHORT_PASSWORD
 //        else if (!password.matches(".*[A-Z].*".toRegex())) "uppercase"  // no need right now
         else if (!password.matches(".*[@#\$%^&+=].*".toRegex())) SR.SPECIAL_CHARACTER_PASSWORD
@@ -192,11 +196,5 @@ class AuthViewModel @Inject constructor(
             confirmPassword,
             confirmPasswordValidator(confirmPassword)
         )
-    }
-
-
-
-    fun clearState(){
-        setState(BaseViewState.Empty)
     }
 }

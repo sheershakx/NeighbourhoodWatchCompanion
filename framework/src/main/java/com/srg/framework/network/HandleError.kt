@@ -1,5 +1,8 @@
 package com.srg.framework.network
 
+import android.net.http.HttpException
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -23,8 +26,8 @@ sealed class Failure : IOException() {
     data class HttpError(var code: Int, override var message: String) : Failure()
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 fun Throwable.handleThrowable(): Failure {
-    // Timber.e(this)
     return if (this is UnknownHostException) {
         Failure.ConnectivityError
     } else if (this is SocketTimeoutException) {

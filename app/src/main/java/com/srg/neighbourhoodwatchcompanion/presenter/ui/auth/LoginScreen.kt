@@ -21,15 +21,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.extension.cast
 import com.srg.neighbourhoodwatchcompanion.AppNavigator
-import com.srg.neighbourhoodwatchcompanion.AppNavigatorImpl
 import com.srg.neighbourhoodwatchcompanion.common.InputValidationTextField
 import com.srg.neighbourhoodwatchcompanion.common.LargeSpacer
 import com.srg.neighbourhoodwatchcompanion.common.MediumSpacer
@@ -104,7 +100,7 @@ fun LoginScreen(
             InputValidationTextField(
                 Modifier,
                 inputWrapper = email,
-                label = "Email",
+                placeHolder = "Email",
                 onValueChange = viewModel::updateEmail
             )
 
@@ -112,7 +108,7 @@ fun LoginScreen(
             InputValidationTextField(
                 Modifier,
                 inputWrapper = password,
-                label = "Password",
+                placeHolder = "Password",
                 visualTransformation = PasswordVisualTransformation(),
                 onValueChange = viewModel::updatePassword
             )

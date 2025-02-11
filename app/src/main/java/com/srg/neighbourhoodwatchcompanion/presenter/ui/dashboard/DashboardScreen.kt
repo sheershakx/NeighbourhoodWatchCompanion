@@ -1,32 +1,59 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.dashboard
 
+import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.utils.toDestinationsNavigator
+import com.srg.neighbourhoodwatchcompanion.AppNavigatorImpl
 import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.common.widgets.BottomNavigationBar
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.NavGraphs
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
+import timber.log.Timber
 
+@SuppressLint("RestrictedApi")
 @BottomNavGraph(start = true)
 @Composable
 fun DashboardScreen(
 ) {
-    val navController = rememberNavController()
+    val navHostController = rememberNavController()
+
+    navHostController.addOnDestinationChangedListener { controller, _, _ ->
+        val routes = controller
+            .currentBackStack.value
+            .map { it.destination.route }
+            .joinToString(", ")
+
+        Timber.d("BackStackLog BackStack: $routes")
+    }
+    BackHandler {
+        Timber.d("Back Pressed :Dashboard= ${navHostController.currentBackStackEntry?.destination?.route}")
+    }
 
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = {
+            BottomNavigationBar(navHostController)
+        },
     ) { innerPadding ->
+
         DestinationsNavHost(
-            navController = navController,
+            navController = navHostController,
             navGraph = NavGraphs.bottom.copy(startRoute = HomeViewScreenDestination),
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            dependenciesContainerBuilder = {
+                //todo:: vvi for error related to DI with APp Navigator
+                dependency(AppNavigatorImpl(destinationsNavigator, navHostController))
+            }
         )
     }
 }
+
 
 
 

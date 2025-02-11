@@ -88,7 +88,7 @@ fun RegisterScreen(
             InputValidationTextField(
                 Modifier,
                 inputWrapper = email,
-                label = "Email",
+                placeHolder = "Email",
                 onValueChange = viewModel::updateEmail
             )
 
@@ -96,7 +96,7 @@ fun RegisterScreen(
             InputValidationTextField(
                 Modifier,
                 inputWrapper = password,
-                label = "Password",
+                placeHolder = "Password",
                 visualTransformation = PasswordVisualTransformation(),
                 onValueChange = viewModel::updatePassword
 
@@ -106,7 +106,7 @@ fun RegisterScreen(
             InputValidationTextField(
                 Modifier,
                 inputWrapper = confirmPassword,
-                label = "Confirm Password",
+                placeHolder = "Confirm Password",
                 visualTransformation = PasswordVisualTransformation(),
                 onValueChange = viewModel::updateConfirmPassword
             )

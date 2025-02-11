@@ -15,6 +15,10 @@ abstract class MviViewModel<STATE : BaseViewState<*>, EVENT> : MvvmViewModel() {
         _uiState.emit(state)
     }
 
+    open fun clearState() = safeLaunch {
+        _uiState.emit(BaseViewState.Empty)
+    }
+
     override fun startLoading() {
         super.startLoading()
         _uiState.value = BaseViewState.Loading

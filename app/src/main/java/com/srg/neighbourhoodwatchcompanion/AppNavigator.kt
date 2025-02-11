@@ -3,11 +3,11 @@ package com.srg.neighbourhoodwatchcompanion
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.NavGraph
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.Direction
-import com.srg.neighbourhoodwatchcompanion.presenter.ui.NavGraphs
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.DashboardScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.IncidentFormScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LoginScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.MapViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.RegisterScreenDestination
@@ -19,7 +19,8 @@ interface AppNavigator {
     fun openDashboardScreen()
     fun showHomeScreen()
     fun showMapScreen()
-    fun bottomNavNavigation(route: Direction)
+    fun openIncidentFormScreen()
+    fun navigateBack()
 }
 
 class AppNavigatorImpl constructor(
@@ -36,7 +37,9 @@ class AppNavigatorImpl constructor(
     }
 
     override fun openLoginScreen() {
-        TODO("Not yet implemented")
+        destinationNavigator.navigate(RegisterScreenDestination) {
+            popUpTo(DashboardScreenDestination) { inclusive = true }
+        }
     }
 
     override fun openDashboardScreen() {
@@ -51,9 +54,7 @@ class AppNavigatorImpl constructor(
         destinationNavigator.navigate(HomeViewScreenDestination) {
             popUpTo(DashboardScreenDestination) {
                 saveState = true
-//                        }
                 launchSingleTop = true
-                // Restore state when reselecting a previously selected item
                 restoreState = true
             }
         }
@@ -62,25 +63,34 @@ class AppNavigatorImpl constructor(
     override fun showMapScreen() {
         destinationNavigator.navigate(MapViewScreenDestination) {
             launchSingleTop = true
-            // Restore state when reselecting a previously selected item
             restoreState = true
         }
     }
 
-    override fun bottomNavNavigation(route: Direction) {
-        destinationNavigator.navigate(route) {
-            popUpTo(NavGraphs.bottom.startRoute) {
-                saveState = true
+    override fun openIncidentFormScreen() {
+        destinationNavigator.navigate(IncidentFormScreenDestination) {
+            popUpTo(HomeViewScreenDestination) {
+                launchSingleTop = true
             }
-            launchSingleTop = true
-            restoreState = true
         }
     }
+
+    override fun navigateBack() {
+        destinationNavigator.popBackStack()
+    }
+
 }
 
-
+@RootNavGraph
 @NavGraph
 @Destination
 annotation class BottomNavGraph(
-    val start: Boolean=false
+    val start: Boolean = false
 )
+
+@BottomNavGraph
+@NavGraph
+annotation class ActionNavGraph(
+    val start: Boolean = false
+)
+

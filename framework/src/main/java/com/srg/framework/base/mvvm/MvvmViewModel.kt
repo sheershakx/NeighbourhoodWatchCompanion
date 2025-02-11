@@ -17,7 +17,7 @@ abstract class MvvmViewModel : ViewModel() {
         Timber.tag(SAFE_LAUNCH_EXCEPTION).e(exception)
         handleError(exception)
     }
-    
+
 
     open fun handleError(exception: Throwable) {}
 
@@ -40,10 +40,11 @@ abstract class MvvmViewModel : ViewModel() {
 
     protected suspend fun <T> execute(
         callFlow: Flow<DataState<T>>,
-        completionHandler: (collect: T) -> Unit = {}
+        loadingEnabled: Boolean = true,
+        completionHandler: (collect: T) -> Unit = {},
     ) {
         callFlow
-            .onStart { startLoading() }
+            .onStart { if (loadingEnabled) startLoading() }
             .catch { handleError(it) }
             .collect { state ->
                 when (state) {
