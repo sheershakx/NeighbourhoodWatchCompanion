@@ -19,11 +19,13 @@ abstract class MvvmViewModel : ViewModel() {
     }
 
 
-    open fun handleError(exception: Throwable) {}
+    open fun handleError(exception: Throwable) {
+        Timber.tag(SAFE_LAUNCH_EXCEPTION).e(exception)
+    }
 
     open fun startLoading() {}
 
-    protected fun safeLaunch(block: suspend CoroutineScope.() -> Unit) {
+    protected  fun safeLaunch(block: suspend CoroutineScope.() -> Unit) {
         viewModelScope.launch(handler, block = block)
     }
 

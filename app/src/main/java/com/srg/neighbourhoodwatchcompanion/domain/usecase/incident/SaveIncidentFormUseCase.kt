@@ -10,8 +10,8 @@ import javax.inject.Inject
 
 class SaveIncidentFormUseCase @Inject constructor(
     private val incidentRepo: IncidentRepo
-) : DataStateUseCase<IncidentInfo, Unit>() {
-    override suspend fun FlowCollector<DataState<Unit>>.execute(
+) : DataStateUseCase<IncidentInfo, String>() {
+    override suspend fun FlowCollector<DataState<String>>.execute(
         params: IncidentInfo
     ) {
         emit(

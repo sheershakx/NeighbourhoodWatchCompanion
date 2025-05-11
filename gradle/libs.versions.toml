@@ -6,7 +6,7 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.9.3"
+activityCompose = "1.10.0"
 composeBom = "2024.11.00"
 appcompat = "1.7.0"
 material = "1.12.0"
@@ -28,6 +28,8 @@ destination-compose = "1.11.8"
 ksp = "2.0.21-1.0.25"
 splashScreen="1.0.1"
 serializable="2.1.20-Beta1"
+accompanist-permissions="0.37.0"
+coil="3.1.0"
 
 
 
@@ -64,6 +66,7 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 supabase-bom = { group = "io.github.jan-tennert.supabase", name = "bom", version.ref = "supabase" }
 supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt" }
 supabase-auth = { group = "io.github.jan-tennert.supabase", name = "auth-kt" }
+supabase-storage = { group = "io.github.jan-tennert.supabase", name = "storage-kt" }
 supabase-ktor = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
 
 supabase-realtime = { group = "io.github.jan-tennert.supabase", name = "realtime-kt" }
@@ -72,6 +75,12 @@ compose-destination = { group = "io.github.raamcosta.compose-destinations", name
 compose-destination-ksp = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "destination-compose" }
 
 androidx-splashScreen={group="androidx.core",name="core-splashscreen",version.ref="splashScreen"}
+accompanist-permissions={group="com.google.accompanist" , name="accompanist-permissions",version.ref="accompanist-permissions"}
+coil-compose={group="io.coil-kt.coil3", name="coil-compose",version.ref="coil"}
+coil-network={group="io.coil-kt.coil3", name="coil-network-okhttp",version.ref="coil"}
+
+
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

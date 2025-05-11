@@ -1,23 +1,35 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.incident
 
+import android.net.Uri
+import androidx.lifecycle.viewModelScope
 import com.srg.framework.base.mvi.BaseViewState
+import com.srg.framework.base.mvi.BaseViewState.*
 import com.srg.framework.base.mvi.MviViewModel
+import com.srg.framework.extension.lazyAsync
 import com.srg.neighbourhoodwatchcompanion.data.model.IncidentInfo
 import com.srg.neighbourhoodwatchcompanion.data.model.IncidentType
 import com.srg.neighbourhoodwatchcompanion.domain.usecase.incident.GetIncidentTypeUseCase
 import com.srg.neighbourhoodwatchcompanion.domain.usecase.incident.SaveIncidentFormUseCase
+import com.srg.neighbourhoodwatchcompanion.domain.usecase.incident.UploadImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.text.isEmpty
 
 @HiltViewModel
 class IncidentFormViewModel @Inject constructor(
     private val getIncidentTypeUseCase: GetIncidentTypeUseCase,
-    private val saveIncidentFormUseCase: SaveIncidentFormUseCase
+    private val saveIncidentFormUseCase: SaveIncidentFormUseCase,
+    private val uploadImageUseCase: UploadImageUseCase
+
 ) : MviViewModel<BaseViewState<IncidentFormState>, IncidentFormEvent>() {
 
     private val _incidentTypeOptions = MutableStateFlow<List<IncidentType>>(emptyList())
@@ -52,6 +64,10 @@ class IncidentFormViewModel @Inject constructor(
     private val _dateTimeCombined = MutableStateFlow<Instant>(Clock.System.now())
     val dateTimeCombined: StateFlow<Instant> get() = _dateTimeCombined
 
+    private val _imageUris = MutableStateFlow<List<Uri>>(emptyList())
+    val imageUris: StateFlow<List<Uri>> get() = _imageUris
+
+
     init {
         safeLaunch {
             execute(getIncidentTypeUseCase(Unit), false) { data ->
@@ -72,22 +88,63 @@ class IncidentFormViewModel @Inject constructor(
                         location = location.value.first,
                         casualties = casualties.value.first,
                     )
-
                     safeLaunch {
-                        execute(saveIncidentFormUseCase(incidentModel)) {
-                            setState(
-                                BaseViewState.Data(
-                                    IncidentFormState(
-                                        incidentFormSavedSuccessful = true
-                                    )
-                                )
-                            )
+                        execute(saveIncidentFormUseCase(incidentModel)) { incidentId ->
+                            if (imageUris.value.isNotEmpty()) {
+                                async(context = this.coroutineContext) {
+                                    uploadImages(incidentId)
+                                }
+                            }
                         }
                     }
                 }
 
             }
+
+            is IncidentFormEvent.OpenImagePicker -> {
+                //check permission
+                //if not granted request permission request
+                //else open image picker and choose image
+            }
+
+//            is IncidentFormEvent.UploadImage -> {
+//                safeLaunch {
+//                    execute(uploadImageUseCase(eventType.uri)) {
+//                        setState(Data(IncidentFormState(imageUploadSuccessful = true)))
+//                    }
+//                }
+//            }
+
+            is IncidentFormEvent.AddImageToPreview -> {
+                updateImageUris(eventType.uri)
+            }
+
+            is IncidentFormEvent.RemoveImageFromPreview -> {
+                _imageUris.value = _imageUris.value.minus(eventType.uri)
+            }
         }
+    }
+
+    private suspend fun uploadImages(incidentId: String) {
+        val uploadJobs = imageUris.value.map { uri ->
+            viewModelScope.async {
+                Timber.d("Uploading image $incidentId")
+                execute(uploadImageUseCase(Pair(uri, incidentId)))
+            }
+        }
+        uploadJobs.awaitAll().run {
+            setState(Data(IncidentFormState(imageUploadSuccessful = true)))
+            setState(
+                Data(
+                    IncidentFormState(
+                        incidentFormSavedSuccessful = true
+                    )
+                )
+            )
+
+        }
+
+
     }
 
     private fun validateInputFields(): Boolean {
@@ -149,6 +206,11 @@ class IncidentFormViewModel @Inject constructor(
 
     fun onCasualtiesUpdated(casualties: String) {
         _casualties.tryEmit(Pair(casualties, ""))
+    }
+
+    fun updateImageUris(uri: Uri) {
+        _imageUris.value = _imageUris.value + uri
+
     }
 
 }

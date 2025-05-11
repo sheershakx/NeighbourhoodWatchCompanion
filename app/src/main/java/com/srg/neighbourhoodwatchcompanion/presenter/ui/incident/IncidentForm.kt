@@ -1,7 +1,19 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.incident
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -12,8 +24,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -27,6 +47,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
@@ -38,13 +59,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.extension.cast
 import com.srg.neighbourhoodwatchcompanion.AppNavigator
@@ -56,14 +87,16 @@ import com.srg.neighbourhoodwatchcompanion.common.showToast
 import io.github.jan.supabase.exceptions.BadRequestRestException
 import java.util.Calendar
 
+@SuppressLint("InlinedApi")
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @BottomNavGraph
 @Composable
 fun IncidentFormScreen(
     viewModel: IncidentFormViewModel = hiltViewModel(),
-    appNavigator: AppNavigator
+    appNavigator: AppNavigator,
 ) {
+    val activity = LocalActivity.current
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val incidentTypeOptions by viewModel.incidentTypeOptions.collectAsState()
@@ -74,8 +107,26 @@ fun IncidentFormScreen(
     val time by viewModel.time.collectAsState()
     val location by viewModel.location.collectAsState()
     val casualties by viewModel.casualties.collectAsState()
+    val imageUris by viewModel.imageUris.collectAsState()
+    val scrollState = rememberScrollState()
 
     var typeExpandedState by remember { mutableStateOf(false) }
+
+    //  todo( "Change imagePermissionRequested to be saved in datastore as this doesnot work if use exits the app after permanent denied and then comes back to app, as this remember state is already lost" )
+    var imagePermissionRequested by rememberSaveable { mutableStateOf(false) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+    ) { result ->
+        if (result == null) {
+            return@rememberLauncherForActivityResult
+        }
+        viewModel.onTriggerEvent(IncidentFormEvent.AddImageToPreview(result))
+
+    }
+
+    val imagePermissionState =
+        rememberPermissionState(android.Manifest.permission.READ_MEDIA_IMAGES)
 
 
 
@@ -95,8 +146,7 @@ fun IncidentFormScreen(
                 val error = uiState.cast<BaseViewState.Error>().throwable
                 if (error is BadRequestRestException) {
                     context.showToast(
-                        error.description
-                            ?: error.error
+                        error.description ?: error.error
                     )
                 } else {
                     context.showToast(error.message.toString())
@@ -107,7 +157,11 @@ fun IncidentFormScreen(
         }
 
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
         if (uiState == BaseViewState.Loading) {
             CircularProgressIndicator(
                 modifier = Modifier
@@ -125,14 +179,14 @@ fun IncidentFormScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text("Incident Type")
-            ExposedDropdownMenuBox(expanded = typeExpandedState,
+            ExposedDropdownMenuBox(
+                expanded = typeExpandedState,
                 onExpandedChange = { typeExpandedState = it }) {
                 InputValidationTextField(modifier = Modifier
                     .menuAnchor()
                     .fillMaxWidth(),
                     inputWrapper = Pair(
-                        selectedIncidentType.first.incidentType ?: "",
-                        selectedIncidentType.second
+                        selectedIncidentType.first.incidentType ?: "", selectedIncidentType.second
                     ),
                     placeHolder = "Select an option",
                     mTrailingIcon = {
@@ -142,11 +196,11 @@ fun IncidentFormScreen(
                         )
                     },
                     onValueChange = {})
-                ExposedDropdownMenu(expanded = typeExpandedState,
+                ExposedDropdownMenu(
+                    expanded = typeExpandedState,
                     onDismissRequest = { typeExpandedState = false }) {
                     incidentTypeOptions.forEach { incidentType ->
-                        DropdownMenuItem(
-                            text = { Text(incidentType.incidentType.toString()) },
+                        DropdownMenuItem(text = { Text(incidentType.incidentType.toString()) },
                             onClick = {
                                 viewModel.onIncidentTypeSelected(incidentType)
                                 typeExpandedState = false
@@ -197,9 +251,51 @@ fun IncidentFormScreen(
             InputValidationTextField(
                 modifier = Modifier.fillMaxWidth(),
                 inputWrapper = location,
-                placeHolder = "Where did the incident happen",
+                placeHolder = "Where did the incident happen?",
                 onValueChange = viewModel::onLocationUpdated
             )
+
+            Text("Images")
+            OutlinedButton(onClick = {
+                when (val status = imagePermissionState.status) {
+                    is PermissionStatus.Granted -> {
+                        context.showToast("Image permission granted")
+                        imagePickerLauncher.launch(
+                            PickVisualMediaRequest(
+                                mediaType = ImageOnly, maxItems = 3
+                            )
+                        )
+                    }
+
+                    is PermissionStatus.Denied -> {
+                        if (imagePermissionRequested) {
+                            if (status.shouldShowRationale) {
+                                imagePermissionState.launchPermissionRequest()
+                            } else {
+                                activity?.openAppSettings()
+                            }
+                        } else {
+                            imagePermissionState.launchPermissionRequest()
+                            imagePermissionRequested = true
+                        }
+                    }
+                }
+
+            }) {
+                Row {
+                    Text("Upload image ")
+                    Icon(
+                        imageVector = Icons.Default.AddCircle, contentDescription = "Upload Images"
+                    )
+
+                }
+            }
+
+            context.CancellableSelectedImages(imageUris) { uri ->
+                viewModel.onTriggerEvent(IncidentFormEvent.RemoveImageFromPreview(uri))
+            }
+
+
             Text("Casualties")
             InputValidationTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -207,13 +303,9 @@ fun IncidentFormScreen(
                 placeHolder = "Any Casualties?",
                 onValueChange = viewModel::onCasualtiesUpdated
             )
-
-
             LargeSpacer()
-
             Button(
-                enabled = uiState is BaseViewState.Loading != true,
-                onClick = {
+                enabled = uiState is BaseViewState.Loading != true, onClick = {
                     viewModel.onTriggerEvent(IncidentFormEvent.SubmitIncident)
                     // Handle form submission here
                 }, modifier = Modifier.fillMaxWidth()
@@ -224,12 +316,55 @@ fun IncidentFormScreen(
     }
 }
 
+@Composable
+fun Context.CancellableSelectedImages(imageUris: List<Uri>, onRemoveSelection: (Uri) -> Unit) {
+    LazyRow {
+        items(imageUris) { imageUri ->
+            Box(
+                modifier = Modifier.size(100.dp)
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(7.dp)),
+                    model = ImageRequest.Builder(this@CancellableSelectedImages).data(
+                        imageUri
+                    ).build(),
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = "selected images"
+                )
+
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(5.dp)
+                        .size(15.dp)
+                        .background(shape = RoundedCornerShape(100), color = Color.White)
+
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(20.dp)
+                            .clickable {
+                                onRemoveSelection(imageUri)
+                            },
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Remove Image",
+                        tint = Color.Black,
+                    )
+                }
+            }
+        }
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerField(
-    selectedDate: Pair<String, String>,
-    onDateSelected: (String) -> Unit
+    selectedDate: Pair<String, String>, onDateSelected: (String) -> Unit
 ) {
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
@@ -255,24 +390,20 @@ fun DatePickerField(
     )
 
     if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDatePicker = false
-                    datePickerState.selectedDateMillis?.let {
-                        onDateSelected(it.formatDateFromMillis())
-                    }
-                }) {
-                    Text("OK")
+        DatePickerDialog(onDismissRequest = { showDatePicker = false }, confirmButton = {
+            TextButton(onClick = {
+                showDatePicker = false
+                datePickerState.selectedDateMillis?.let {
+                    onDateSelected(it.formatDateFromMillis())
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
-                }
+            }) {
+                Text("OK")
             }
-        ) {
+        }, dismissButton = {
+            TextButton(onClick = { showDatePicker = false }) {
+                Text("Cancel")
+            }
+        }) {
             DatePicker(state = datePickerState)
         }
     }
@@ -283,8 +414,7 @@ fun DatePickerField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimePickerField(
-    selectedTime: Pair<String, String>,
-    onTimeConfirmed: (Pair<Int, Int>) -> Unit
+    selectedTime: Pair<String, String>, onTimeConfirmed: (Pair<Int, Int>) -> Unit
 ) {
 
 
@@ -319,37 +449,33 @@ fun TimePickerField(
     )
 
     if (showTimePicker) {
-        AlertDialog(
-            onDismissRequest = { onTimePickerDismiss() },
-            dismissButton = {
-                TextButton(onClick = { onTimePickerDismiss() }) {
-                    Text("Dismiss")
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onTimeConfirmed(
-                        Pair(
-                            timePickerState.hour,
-                            timePickerState.minute
-                        )
-                    )
-                    onTimePickerDismiss()
-                }) {
-                    Text("OK")
-                }
-            },
-            text = {
-                TimeInput(timePickerState)
+        AlertDialog(onDismissRequest = { onTimePickerDismiss() }, dismissButton = {
+            TextButton(onClick = { onTimePickerDismiss() }) {
+                Text("Dismiss")
             }
-        )
+        }, confirmButton = {
+            TextButton(onClick = {
+                onTimeConfirmed(
+                    Pair(
+                        timePickerState.hour, timePickerState.minute
+                    )
+                )
+                onTimePickerDismiss()
+            }) {
+                Text("OK")
+            }
+        }, text = {
+            TimeInput(timePickerState)
+        })
     }
 
 }
 
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewIncidentForm() {
-//    IncidentFormScreen()
-//}
+
+fun Activity.openAppSettings() {
+    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = Uri.fromParts("package", packageName, null)
+    }.also(::startActivity)
+
+}
+
