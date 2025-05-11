@@ -1,7 +1,6 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.dashboard.home
 
 import android.annotation.SuppressLint
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -38,9 +37,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.extension.cast
 import com.srg.neighbourhoodwatchcompanion.AppNavigator
@@ -48,8 +44,6 @@ import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.R
 import com.srg.neighbourhoodwatchcompanion.common.LargeSpacer
 import com.srg.neighbourhoodwatchcompanion.common.MediumSpacer
-import kotlinx.coroutines.flow.first
-import timber.log.Timber
 
 @SuppressLint("RestrictedApi")
 @BottomNavGraph

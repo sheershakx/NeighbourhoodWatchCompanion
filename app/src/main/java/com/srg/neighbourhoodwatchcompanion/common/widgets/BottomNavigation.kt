@@ -16,10 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.utils.toDestinationsNavigator
-import com.srg.neighbourhoodwatchcompanion.presenter.ui.NavGraphs
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.MapViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.SettingsViewScreenDestination
@@ -28,7 +26,7 @@ import timber.log.Timber
 data class BottomNavigationScreens<T : Any>(
     val name: String,
     val destination: T,
-    val selectedIicon: ImageVector,
+    val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 )
 
@@ -72,7 +70,7 @@ fun BottomNavigationBar(navController: NavController) {
                 Timber.d("Navigation bar : ${topLevelRoute.destination.route}")
                 NavigationBarItem(icon = {
                     Icon(
-                        if (isSelected) topLevelRoute.selectedIicon else topLevelRoute.unselectedIcon,
+                        if (isSelected) topLevelRoute.selectedIcon else topLevelRoute.unselectedIcon,
                         contentDescription = topLevelRoute.name
                     )
                 },
