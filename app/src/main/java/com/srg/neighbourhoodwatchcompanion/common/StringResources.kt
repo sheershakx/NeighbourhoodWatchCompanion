@@ -20,5 +20,6 @@ object StringResources {
     val INCIDENT_IMAGES_BUCKET = "incident_images"
     val INCIDENTS_TABLE = "incidents"
     val INCIDENT_IMAGES_TABLE = "incident_images"
+    val INCIDENT_LOCATION_INFO_TABLE = "incident_location_info"
 
 }

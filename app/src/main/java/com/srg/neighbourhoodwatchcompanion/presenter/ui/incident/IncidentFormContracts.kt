@@ -10,7 +10,7 @@ data class IncidentFormState(
 
 sealed class IncidentFormEvent {
     object SubmitIncident : IncidentFormEvent()
-    object OpenImagePicker: IncidentFormEvent()
+    object LocationInformationSave: IncidentFormEvent()
     data class AddImageToPreview(val uri: Uri): IncidentFormEvent()
     data class RemoveImageFromPreview(val uri: Uri): IncidentFormEvent()
 }

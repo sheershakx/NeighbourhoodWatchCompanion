@@ -47,11 +47,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -105,12 +107,22 @@ fun IncidentFormScreen(
     val description by viewModel.description.collectAsState()
     val date by viewModel.date.collectAsState()
     val time by viewModel.time.collectAsState()
-    val location by viewModel.location.collectAsState()
     val casualties by viewModel.casualties.collectAsState()
     val imageUris by viewModel.imageUris.collectAsState()
     val scrollState = rememberScrollState()
 
+    val incidentLocationInformation by viewModel.incidentLocationInformation.collectAsState()
+    val bottomSheetState = rememberModalBottomSheetState(true)
+
+    var openBottomSheet by remember { mutableStateOf(false) }
+
     var typeExpandedState by remember { mutableStateOf(false) }
+    val locationInteractionSource = remember { MutableInteractionSource() }
+
+    //location screen related
+    val predictions by viewModel.predictions.collectAsState()
+    val locationSearchText by viewModel.locationSearchText.collectAsState()
+    val previewSelectedLocation by viewModel.previewSelectedLocation
 
     //  todo( "Change imagePermissionRequested to be saved in datastore as this doesnot work if use exits the app after permanent denied and then comes back to app, as this remember state is already lost" )
     var imagePermissionRequested by rememberSaveable { mutableStateOf(false) }
@@ -128,8 +140,13 @@ fun IncidentFormScreen(
     val imagePermissionState =
         rememberPermissionState(android.Manifest.permission.READ_MEDIA_IMAGES)
 
-
-
+    LaunchedEffect(locationInteractionSource) {
+        locationInteractionSource.interactions.collect {
+            if (it is PressInteraction.Release) {
+                openBottomSheet = !openBottomSheet
+            }
+        }
+    }
     LaunchedEffect(key1 = uiState) {
         when (uiState) {
             is BaseViewState.Data -> {
@@ -250,10 +267,36 @@ fun IncidentFormScreen(
             Text("Location")
             InputValidationTextField(
                 modifier = Modifier.fillMaxWidth(),
-                inputWrapper = location,
+                inputWrapper = Pair(incidentLocationInformation.primaryText, ""),
+                mReadOnly = true,
                 placeHolder = "Where did the incident happen?",
-                onValueChange = viewModel::onLocationUpdated
+                onValueChange = {},
+                mInteractionSource = locationInteractionSource
             )
+            if (openBottomSheet) {
+                ModalBottomSheet(
+                    modifier = Modifier.padding(top = 40.dp),
+                    sheetState = bottomSheetState,
+                    onDismissRequest = {
+                        openBottomSheet = false
+                    }
+                ) {
+                    LocationInputScreen(predictions,
+                        locationSearchText,
+                        previewSelectedLocation,
+                        onLocationSearchUpdated = {
+                            viewModel.onLocationSearchUpdated(it)
+                        },
+                        onLocationSelected = {
+                            viewModel.onLocationSelected(it)
+                        },
+                        onLocationInformationSaved = {
+                            viewModel.onTriggerEvent(IncidentFormEvent.LocationInformationSave)
+                            openBottomSheet = false
+                        }
+                    )
+                }
+            }
 
             Text("Images")
             OutlinedButton(onClick = {

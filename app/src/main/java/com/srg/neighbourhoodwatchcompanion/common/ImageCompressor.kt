@@ -77,7 +77,7 @@ class ImageCompressor(
                 ?.use { cursor ->
                     val nameIndex = cursor.getColumnIndexOrThrow(DISPLAY_NAME)
                     if (cursor.moveToFirst()) {
-                        val filename = UUID.randomUUID().toString()+cursor.getString(nameIndex)
+                        val filename = UUID.randomUUID().toString() + cursor.getString(nameIndex)
 
                         if (!filename.contains(".")) {
                             // Retrieve the MIME type using the ContentResolver

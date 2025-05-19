@@ -8,6 +8,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.DashboardScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.IncidentFormScreenDestination
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LocationInputScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LoginScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.MapViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.RegisterScreenDestination
@@ -21,6 +22,7 @@ interface AppNavigator {
     fun showMapScreen()
     fun openIncidentFormScreen()
     fun navigateBack()
+    fun openLocationInputScreen()
 }
 
 class AppNavigatorImpl constructor(
@@ -77,6 +79,10 @@ class AppNavigatorImpl constructor(
 
     override fun navigateBack() {
         destinationNavigator.popBackStack()
+    }
+
+    override fun openLocationInputScreen() {
+        destinationNavigator.navigate(LocationInputScreenDestination)
     }
 
 }

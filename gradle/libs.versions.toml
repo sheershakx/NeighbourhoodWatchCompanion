@@ -30,6 +30,9 @@ splashScreen="1.0.1"
 serializable="2.1.20-Beta1"
 accompanist-permissions="0.37.0"
 coil="3.1.0"
+mapsComposeVersion = "4.4.1"
+placesComposeWrapper ="0.1.3"
+androidPlaces="4.2.0"
 
 
 
@@ -79,6 +82,12 @@ accompanist-permissions={group="com.google.accompanist" , name="accompanist-perm
 coil-compose={group="io.coil-kt.coil3", name="coil-compose",version.ref="coil"}
 coil-network={group="io.coil-kt.coil3", name="coil-network-okhttp",version.ref="coil"}
 
+maps-compose={group="com.google.maps.android",name="maps-compose",version.ref="mapsComposeVersion"}
+maps-compose-utils={group="com.google.maps.android",name="maps-compose-utils",version.ref="mapsComposeVersion"}
+maps-compose-widgets={group="com.google.maps.android",name="maps-compose-widgets",version.ref="mapsComposeVersion"}
+
+places-compose-wrapper ={group="com.google.maps.android",name="places-compose",version.ref= "placesComposeWrapper" }
+android-places={group="com.google.android.libraries.places",name="places",version.ref="androidPlaces"}
 
 
 [plugins]

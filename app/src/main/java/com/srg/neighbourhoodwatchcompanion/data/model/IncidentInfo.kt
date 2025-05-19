@@ -12,7 +12,6 @@ data class IncidentInfo(
     @SerialName("title") var title: String,
     @SerialName("description") var description: String,
     @SerialName("date") var date: String,
-    @SerialName("location") var location: String,
     @SerialName("casualties") var casualties: String? = null,
     @SerialName("created_at") var createdAt: String? = null,
     @SerialName("updated_at") var updatedAt: String? = null

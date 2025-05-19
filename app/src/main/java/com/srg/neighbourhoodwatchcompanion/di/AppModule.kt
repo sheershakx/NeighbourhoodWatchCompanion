@@ -1,6 +1,9 @@
 package com.srg.neighbourhoodwatchcompanion.di
 
 import android.content.Context
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.PlacesClient
+import com.srg.neighbourhoodwatchcompanion.BuildConfig
 import com.srg.neighbourhoodwatchcompanion.common.ImageCompressor
 import com.srg.neighbourhoodwatchcompanion.data.repo.auth.AuthRepo
 import com.srg.neighbourhoodwatchcompanion.data.repo.auth.AuthRepoImpl
@@ -43,6 +46,13 @@ class AppModule {
     @Provides
     fun provideImageCompressor(@ApplicationContext context: Context): ImageCompressor{
         return ImageCompressor(context)
+    }
+
+    @Singleton
+    @Provides
+    fun providePlacesClient(@ApplicationContext context: Context): PlacesClient{
+        Places.initializeWithNewPlacesApiEnabled(context, BuildConfig.PLACES_KEY)
+        return Places.createClient(context)
 
     }
 }

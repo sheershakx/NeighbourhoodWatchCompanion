@@ -3,9 +3,11 @@ package com.srg.neighbourhoodwatchcompanion.data.repo.incidents
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENTS_TABLE
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENT_IMAGES_BUCKET
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENT_IMAGES_TABLE
+import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENT_LOCATION_INFO_TABLE
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENT_TYPE_TABLE
 import com.srg.neighbourhoodwatchcompanion.data.model.IncidentImage
 import com.srg.neighbourhoodwatchcompanion.data.model.IncidentInfo
+import com.srg.neighbourhoodwatchcompanion.data.model.IncidentLocationInformation
 import com.srg.neighbourhoodwatchcompanion.data.model.IncidentType
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
@@ -21,6 +23,7 @@ interface IncidentRepo {
     suspend fun saveIncidentForm(incidentData: IncidentInfo): String
     suspend fun uploadImage(byteArray: ByteArray, fileName: String?)
     suspend fun insertImagePaths(incidentImage: IncidentImage)
+    suspend fun insertLocationInformation(locationInformation: IncidentLocationInformation)
 }
 
 class IncidentRepoImpl @Inject constructor(
@@ -54,6 +57,11 @@ class IncidentRepoImpl @Inject constructor(
 
     override suspend fun insertImagePaths(incidentImage: IncidentImage) {
         postgrest.from(INCIDENT_IMAGES_TABLE).insert(incidentImage)
+    }
+
+    override suspend fun insertLocationInformation(locationInformation: IncidentLocationInformation) {
+        postgrest.from(INCIDENT_LOCATION_INFO_TABLE).insert(locationInformation)
+
     }
 
 

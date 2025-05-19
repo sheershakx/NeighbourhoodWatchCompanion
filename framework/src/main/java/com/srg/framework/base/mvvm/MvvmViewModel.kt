@@ -13,6 +13,7 @@ import timber.log.Timber
 
 abstract class MvvmViewModel : ViewModel() {
 
+
     private val handler = CoroutineExceptionHandler { _, exception ->
         Timber.tag(SAFE_LAUNCH_EXCEPTION).e(exception)
         handleError(exception)
@@ -25,7 +26,7 @@ abstract class MvvmViewModel : ViewModel() {
 
     open fun startLoading() {}
 
-    protected  fun safeLaunch(block: suspend CoroutineScope.() -> Unit) {
+    protected fun safeLaunch(block: suspend CoroutineScope.() -> Unit) {
         viewModelScope.launch(handler, block = block)
     }
 

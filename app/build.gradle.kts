@@ -37,8 +37,12 @@ android {
             p.load(project.rootProject.file("local.properties").reader())
             val supabaseKey: String = p.getProperty("SUPABASE_KEY")
             val supabaseUrl: String = p.getProperty("SUPABASE_URL")
+            val mapsKey: String = p.getProperty("MAPS_API_KEY")
+            val placesKey: String = p.getProperty("PLACES_API_KEY")
             buildConfigField("String", "SUPABASE_KEY", supabaseKey)
             buildConfigField("String", "SUPABASE_URL", supabaseUrl)
+            buildConfigField("String", "PLACES_KEY", placesKey)
+            resValue("string", "maps_api_key", mapsKey)
         }
         release {
             isMinifyEnabled = false
@@ -89,6 +93,13 @@ dependencies {
     implementation(libs.supabase.postgrest)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
+
+    implementation(libs.maps.compose)
+    implementation(libs.maps.compose.utils)
+    implementation(libs.maps.compose.widgets)
+    implementation(libs.places.compose.wrapper)
+    implementation(libs.android.places)
+
     implementation(project(":framework"))
     kapt(libs.dagger.hilt.compiler)
     testImplementation(libs.junit)
