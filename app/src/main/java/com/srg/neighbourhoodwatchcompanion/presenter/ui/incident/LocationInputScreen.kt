@@ -71,9 +71,6 @@ fun LocationInputScreen(
             },
             onSelected = onLocationSelected,
             placeHolderText = "Enter location or intersection",
-            onBackClicked = {
-
-            }
         )
         if (previewSelectedLocation != null) {
 

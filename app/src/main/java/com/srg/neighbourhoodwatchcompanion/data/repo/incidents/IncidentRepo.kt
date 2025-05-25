@@ -5,6 +5,7 @@ import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENT_IMAGE
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENT_IMAGES_TABLE
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENT_LOCATION_INFO_TABLE
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.INCIDENT_TYPE_TABLE
+import com.srg.neighbourhoodwatchcompanion.data.model.GetDetailedIncident
 import com.srg.neighbourhoodwatchcompanion.data.model.IncidentImage
 import com.srg.neighbourhoodwatchcompanion.data.model.IncidentInfo
 import com.srg.neighbourhoodwatchcompanion.data.model.IncidentLocationInformation
@@ -24,6 +25,7 @@ interface IncidentRepo {
     suspend fun uploadImage(byteArray: ByteArray, fileName: String?)
     suspend fun insertImagePaths(incidentImage: IncidentImage)
     suspend fun insertLocationInformation(locationInformation: IncidentLocationInformation)
+    suspend fun getDetailedIncidents(): List<GetDetailedIncident>
 }
 
 class IncidentRepoImpl @Inject constructor(
@@ -62,6 +64,10 @@ class IncidentRepoImpl @Inject constructor(
     override suspend fun insertLocationInformation(locationInformation: IncidentLocationInformation) {
         postgrest.from(INCIDENT_LOCATION_INFO_TABLE).insert(locationInformation)
 
+    }
+
+    override suspend fun getDetailedIncidents(): List<GetDetailedIncident> {
+        return postgrest.rpc("get_detailed_incidents").decodeList<GetDetailedIncident>()
     }
 
 
