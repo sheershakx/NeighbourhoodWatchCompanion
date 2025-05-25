@@ -15,7 +15,11 @@ class MapViewViewModel @Inject constructor(
 ) :
     MviViewModel<BaseViewState<MapViewState>, MapViewEvent>() {
     override fun onTriggerEvent(eventType: MapViewEvent) {
-        TODO("Not yet implemented")
+        when (eventType) {
+            is MapViewEvent.MapMarkerClicked -> {
+                setState(BaseViewState.Data(MapViewState(scrollPageTo = eventType.page)))
+            }
+        }
     }
 
     private var _detailedIncidents = MutableStateFlow<List<GetDetailedIncident>>(emptyList())

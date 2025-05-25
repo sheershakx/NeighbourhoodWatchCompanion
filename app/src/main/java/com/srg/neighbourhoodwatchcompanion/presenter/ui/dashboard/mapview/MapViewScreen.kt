@@ -1,6 +1,7 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.dashboard.mapview
 
-import androidx.compose.foundation.basicMarquee
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,7 +29,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,16 +41,25 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.srg.framework.base.mvi.BaseViewState
+import com.srg.framework.extension.cast
 import com.srg.neighbourhoodwatchcompanion.AppNavigator
 import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
+import com.srg.neighbourhoodwatchcompanion.common.formatDateTimeForDisplay
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.Black
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.DangerColor
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.WarningColor
 import kotlin.math.absoluteValue
 
+@RequiresApi(Build.VERSION_CODES.O)
 @BottomNavGraph
 @Composable
 fun MapViewScreen(
@@ -55,42 +67,84 @@ fun MapViewScreen(
     appNavigator: AppNavigator,
 ) {
     //vm data variables
-
     val detailedIncidents = viewModel.detailedIncidents.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
 
     //map variables
     val cameraPositionState = rememberCameraPositionState()
+    val zoomState = remember { mutableFloatStateOf(15f) }
     val mapProperties = MapProperties(
-        mapType = MapType.HYBRID,
+        mapType = MapType.NORMAL,
     )
     val mapUiSettings = MapUiSettings(
         zoomControlsEnabled = true,
         compassEnabled = false,
-        mapToolbarEnabled = true,
+        mapToolbarEnabled = false,
         myLocationButtonEnabled = true
     )
 
-    val incidentCardDataMapped = detailedIncidents.value.map {
-        IncidentCardDataModel(
-            incidentType = it.incidentType,
-            location = it.primaryText,
-            dateTime = it.date,
-            casualties = it.casualties
-        )
+    val incidentCardDataMapped =
+        detailedIncidents.value.map {
+            IncidentCardDataModel(
+                incidentType = it.incidentType,
+                location = it.primaryText,
+                dateTime = it.date,
+                casualties = it.casualties
+            )
+        }
+
+    val pagerState = rememberPagerState {
+        incidentCardDataMapped.size
     }
-    val pagerState = remember(incidentCardDataMapped.size) {
-        PagerState(incidentCardDataMapped.size / 2) {
-            incidentCardDataMapped.size
+
+    LaunchedEffect(pagerState.currentPage, detailedIncidents.value.size) {
+        if (detailedIncidents.value.isNotEmpty()) {
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        detailedIncidents.value[pagerState.currentPage].lat,
+                        detailedIncidents.value[pagerState.currentPage].lng
+                    ), zoomState.floatValue
+                ), 800
+            )
         }
     }
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is BaseViewState.Data -> {
+                val mapViewState = (uiState.cast<BaseViewState.Data<MapViewState>>()).value
+                mapViewState.scrollPageTo?.let {
+                    pagerState.animateScrollToPage(it)
+                }
+            }
+
+            else -> {}
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(
                 cameraPositionState = cameraPositionState,
                 properties = mapProperties,
-                uiSettings = mapUiSettings
-            )
+                uiSettings = mapUiSettings,
+            ) {
+                detailedIncidents.value.forEachIndexed { currentPage, it ->
+                    Circle(
+                        center = LatLng(it.lat, it.lng),
+                        radius = 500.0,
+                        fillColor = DangerColor.copy(alpha = 0.3f),
+                        strokeColor = Black,
+                        strokeWidth = 1f,
+                        clickable = true
+                    ) {
+                        viewModel.onTriggerEvent(MapViewEvent.MapMarkerClicked(currentPage))
+                    }
+
+                }
+            }
             HorizontalPager(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -119,6 +173,7 @@ fun MapViewScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun IncidentCard(
     incidentType: String,
@@ -142,7 +197,11 @@ fun IncidentCard(
         ) {
             IncidentInfoRow(icon = Icons.Filled.Warning, label = "Incident", value = incidentType)
             IncidentInfoRow(icon = Icons.Default.LocationOn, label = "Location", value = location)
-            IncidentInfoRow(icon = Icons.Default.DateRange, label = "Date & Time", value = dateTime)
+            IncidentInfoRow(
+                icon = Icons.Default.DateRange,
+                label = "Date & Time",
+                value = dateTime.formatDateTimeForDisplay()
+            )
             IncidentInfoRow(icon = Icons.Default.Person, label = "Casualties", value = casualties)
         }
     }

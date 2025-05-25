@@ -302,7 +302,6 @@ fun IncidentFormScreen(
             OutlinedButton(onClick = {
                 when (val status = imagePermissionState.status) {
                     is PermissionStatus.Granted -> {
-                        context.showToast("Image permission granted")
                         imagePickerLauncher.launch(
                             PickVisualMediaRequest(
                                 mediaType = ImageOnly, maxItems = 3
