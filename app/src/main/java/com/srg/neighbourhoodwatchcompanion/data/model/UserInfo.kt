@@ -6,11 +6,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserInfo(
-    @SerialName("id") var id: String,
-    @SerialName("user_id") var userId: String,
+    @SerialName("id") var id: String?=null,
+    @SerialName("user_id") var userId: String?=null,
     @SerialName("first_name") var firstName: String? = null,
     @SerialName("last_name")
-
     var lastName: String? = null,
     @SerialName("mobile")
 

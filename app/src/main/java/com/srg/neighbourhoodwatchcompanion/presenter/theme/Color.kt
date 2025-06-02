@@ -14,3 +14,6 @@ val WarningColor= Color(0xFFF2B41A)
 val DangerColor= Color(0xFFD31414)
 
 val Black=Color(0xFF000000)
+
+
+//val LightGray = Color(0xFFCCCCCC)

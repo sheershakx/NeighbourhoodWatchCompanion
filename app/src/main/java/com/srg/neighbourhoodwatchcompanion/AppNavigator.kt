@@ -5,6 +5,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.NavGraph
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.AccountEditScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.DashboardScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.IncidentFormScreenDestination
@@ -23,6 +24,7 @@ interface AppNavigator {
     fun openIncidentFormScreen()
     fun navigateBack()
     fun openLocationInputScreen()
+    fun openAccountEditScreen()
 }
 
 class AppNavigatorImpl constructor(
@@ -83,6 +85,10 @@ class AppNavigatorImpl constructor(
 
     override fun openLocationInputScreen() {
         destinationNavigator.navigate(LocationInputScreenDestination)
+    }
+
+    override fun openAccountEditScreen() {
+        destinationNavigator.navigate(AccountEditScreenDestination)
     }
 
 }

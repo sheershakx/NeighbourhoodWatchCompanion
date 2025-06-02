@@ -5,6 +5,10 @@ object StringResources {
     //Widget's text
     val LOGIN = "Login"
     val REGISTER = "Register"
+    val FIRST_NAME = "First name"
+    val LAST_NAME = "Last name"
+    val EMAIL = "Email"
+    val MOBILE = "Mobile"
 
 
     //Messages

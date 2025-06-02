@@ -53,7 +53,7 @@ fun HomeViewScreen(
     appNavigator: AppNavigator,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val userInfo by viewModel.userInfo.collectAsState()
+    val firstName by viewModel.userName.collectAsState()
 
 
     LaunchedEffect(uiState) {
@@ -76,7 +76,7 @@ fun HomeViewScreen(
         //Greetings View
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Hi, ${userInfo.firstName}",
+                "Hi, $firstName",
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 5.dp)

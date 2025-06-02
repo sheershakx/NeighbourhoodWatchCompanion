@@ -7,6 +7,7 @@ import javax.inject.Inject
 
 interface UserRepo {
     suspend fun getUserInfo(): UserInfo
+    suspend fun updateUserInfo(userInfo: UserInfo)
 }
 
 class UserRepoImpl @Inject constructor(
@@ -19,6 +20,20 @@ class UserRepoImpl @Inject constructor(
                 UserInfo::userId eq supabaseAuth.currentUserOrNull()?.id
             }
         }.decodeSingle<UserInfo>())
+    }
+
+    override suspend fun updateUserInfo(userInfo: UserInfo) {
+        postgrest.from("user_info").update(
+            {
+                UserInfo::firstName setTo userInfo.firstName
+                UserInfo::lastName setTo userInfo.lastName
+                UserInfo::mobile setTo userInfo.mobile
+            }
+        ) {
+            filter {
+                UserInfo::userId eq supabaseAuth.currentUserOrNull()?.id
+            }
+        }
     }
 
 

@@ -93,6 +93,7 @@ dependencies {
     implementation(libs.supabase.postgrest)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
+    implementation(libs.androidx.datastore)
 
     implementation(libs.maps.compose)
     implementation(libs.maps.compose.utils)
