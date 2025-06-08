@@ -13,7 +13,6 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
-import com.ramcosta.composedestinations.utils.toDestinationsNavigator
 import com.srg.neighbourhoodwatchcompanion.AppNavigatorImpl
 import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.common.widgets.BottomNavigationBar
@@ -24,8 +23,7 @@ import timber.log.Timber
 @SuppressLint("RestrictedApi")
 @BottomNavGraph(start = true)
 @Composable
-fun DashboardScreen(
-) {
+fun DashboardScreen() {
     val navHostController = rememberNavController()
 
     navHostController.addOnDestinationChangedListener { controller, _, _ ->
@@ -76,6 +74,7 @@ fun DashboardScreen(
         )
     }
 }
+
 
 
 

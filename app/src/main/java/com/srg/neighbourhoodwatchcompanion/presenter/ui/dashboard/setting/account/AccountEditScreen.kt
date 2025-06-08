@@ -94,7 +94,6 @@ fun AccountEditScreen(
             return@rememberLauncherForActivityResult
         }
         viewModel.onTriggerEvent(AccountEditEvents.PreviewProfileImage(result))
-
     }
     val imagePermissionState =
         rememberPermissionState(android.Manifest.permission.READ_MEDIA_IMAGES)

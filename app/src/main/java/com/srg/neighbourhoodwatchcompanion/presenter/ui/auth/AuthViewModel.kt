@@ -1,17 +1,13 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.auth
 
 import android.util.Patterns
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.base.mvi.MviViewModel
-import com.srg.framework.extension.cast
-import com.srg.framework.extension.toJson
-import com.srg.framework.network.apiCall
 import com.srg.neighbourhoodwatchcompanion.data.model.AuthParams
 import com.srg.neighbourhoodwatchcompanion.domain.usecase.auth.LoginUseCase
+import com.srg.neighbourhoodwatchcompanion.domain.usecase.home.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -20,9 +16,7 @@ import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 import javax.inject.Inject
@@ -33,7 +27,8 @@ import com.srg.neighbourhoodwatchcompanion.common.StringResources as SR
 class AuthViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val supabaseAuth: Auth,
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : MviViewModel<BaseViewState<AuthState>, AuthEvent>() {
 
     companion object {
@@ -97,6 +92,7 @@ class AuthViewModel @Inject constructor(
                         }
 
                         is SessionSource.SignIn -> {
+                            execute(getUserInfoUseCase(Unit))
                             setState(BaseViewState.Data(AuthState(isUserLoggedIn = true)))
                             //listen upon sign in
                         }

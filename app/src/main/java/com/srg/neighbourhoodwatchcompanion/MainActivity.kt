@@ -55,7 +55,8 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             isLoggedIn = supabaseAuth.loadFromStorage()
             if (isLoggedIn) {
-                getUserInfoUseCase(Unit).collect {}
+                getUserInfoUseCase(Unit).collect {
+                }
             }
         }.invokeOnCompletion {
             showSplashScreen = false
@@ -111,8 +112,6 @@ fun RootView(
         currentBackStackEntry.value?.destination?.route ?: NavGraphs.root.startRoute
     val startRoute = if (isLoggedIn) DashboardScreenDestination else NavGraphs.root.startRoute
     val startGraph = if (isLoggedIn) NavGraphs.bottom else NavGraphs.root
-
-
 
     BackHandler {
         Timber.d("Back pressed main: ${navHostController.currentBackStackEntry?.destination?.route}")
