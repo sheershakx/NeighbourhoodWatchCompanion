@@ -6,14 +6,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserInfo(
-    @SerialName("id") var id: String?=null,
-    @SerialName("user_id") var userId: String?=null,
+    @SerialName("id") var id: String? = null,
+    @SerialName("user_id") var userId: String? = null,
     @SerialName("first_name") var firstName: String? = null,
     @SerialName("last_name")
     var lastName: String? = null,
     @SerialName("mobile")
-
     var mobile: String? = null,
+
+    @SerialName("image_path")
+    var imagePath: String? = null,
     @SerialName("created_at")
 
     var createdAt: String? = null,
@@ -21,9 +23,9 @@ data class UserInfo(
 
     var updatedAt: String? = null
 
-){
-    companion object{
-        val empty = UserInfo("","","","","","","")
+) {
+    companion object {
+        val empty = UserInfo("", "", "", "", "", "", "")
 
     }
 }

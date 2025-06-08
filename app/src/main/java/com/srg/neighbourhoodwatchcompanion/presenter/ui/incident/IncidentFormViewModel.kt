@@ -97,7 +97,7 @@ class IncidentFormViewModel @Inject constructor(
                 if (_previewSelectedLocation.value == null) {
                     val response = placesClient.awaitFindAutocompletePredictions {
 //                    typesFilter = listOf(PlaceTypes.INTERSECTION)
-                        countries = listOf("CA","US","NP","IN","AU")
+                        countries = listOf("CA", "US", "NP", "IN", "AU")
                         this.query = query.first
                     }
                     _predictions.value = response.autocompletePredictions
@@ -186,8 +186,6 @@ class IncidentFormViewModel @Inject constructor(
             )
 
         }
-
-
     }
 
     private fun validateInputFields(): Boolean {

@@ -1,11 +1,14 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.dashboard.setting.account
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.srg.framework.base.mvi.BaseViewState
+import com.srg.framework.base.mvi.BaseViewState.Data
 import com.srg.framework.base.mvi.MviViewModel
 import com.srg.neighbourhoodwatchcompanion.data.dataStore.DataStoreRepo
 import com.srg.neighbourhoodwatchcompanion.data.model.UserInfo
 import com.srg.neighbourhoodwatchcompanion.domain.usecase.user.UpdateUserInfoUseCase
+import com.srg.neighbourhoodwatchcompanion.domain.usecase.user.UploadProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AccountEditViewModel @Inject constructor(
     private val updateUserInfoUseCase: UpdateUserInfoUseCase,
+    private val uploadProfileImageUseCase: UploadProfileImageUseCase,
     private val dataStoreRepo: DataStoreRepo
 ) :
     MviViewModel<BaseViewState<AccountEditState>, AccountEditEvents>() {
@@ -26,6 +30,9 @@ class AccountEditViewModel @Inject constructor(
         when (eventType) {
             is AccountEditEvents.SubmitChanges -> {
                 safeLaunch {
+                    if (profileImageUri.value != Uri.EMPTY) {
+                        execute(uploadProfileImageUseCase(profileImageUri.value))
+                    }
                     execute(
                         updateUserInfoUseCase(
                             UserInfo(
@@ -35,13 +42,27 @@ class AccountEditViewModel @Inject constructor(
                             )
                         )
                     ) {
-                        setState(BaseViewState.Data(AccountEditState(true)))
+                        setState(Data(AccountEditState(updateSuccessful = true)))
                     }
                 }
+            }
+
+            is AccountEditEvents.PreviewProfileImage -> {
+                _profileImageUri.value = eventType.uri
+
             }
         }
     }
 
+    val profileImageLocal =
+        dataStoreRepo.profileImage.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(3000),
+            false
+        )
+
+    private var _profileImageUri = MutableStateFlow<Uri>(Uri.EMPTY)
+    val profileImageUri: StateFlow<Uri> get() = _profileImageUri
 
     private var _firstName = MutableStateFlow<String>("")
     val firstName: StateFlow<String> get() = _firstName

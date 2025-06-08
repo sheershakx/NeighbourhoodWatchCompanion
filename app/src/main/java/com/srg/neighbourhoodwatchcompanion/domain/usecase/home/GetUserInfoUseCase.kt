@@ -21,7 +21,9 @@ class GetUserInfoUseCase @Inject constructor(
         }
         if (userInfoResponse is DataState.Success<UserInfo>) {
             val result = userInfoResponse.result
+            val signedUrl = userRepo.getProfileImageSignedUrl(result.imagePath.toString())
             dataStoreRepo.saveUserData(result)
+            dataStoreRepo.saveProfileImage(signedUrl)
         }
         emit(userInfoResponse)
 

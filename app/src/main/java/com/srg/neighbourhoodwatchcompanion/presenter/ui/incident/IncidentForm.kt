@@ -9,9 +9,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -61,7 +59,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -76,7 +73,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.extension.cast
@@ -84,6 +80,7 @@ import com.srg.neighbourhoodwatchcompanion.AppNavigator
 import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.common.InputValidationTextField
 import com.srg.neighbourhoodwatchcompanion.common.LargeSpacer
+import com.srg.neighbourhoodwatchcompanion.common.PermissionHelper.handleImagePermissionAndLaunchPicker
 import com.srg.neighbourhoodwatchcompanion.common.formatDateFromMillis
 import com.srg.neighbourhoodwatchcompanion.common.showToast
 import io.github.jan.supabase.exceptions.BadRequestRestException
@@ -300,28 +297,14 @@ fun IncidentFormScreen(
 
             Text("Images")
             OutlinedButton(onClick = {
-                when (val status = imagePermissionState.status) {
-                    is PermissionStatus.Granted -> {
-                        imagePickerLauncher.launch(
-                            PickVisualMediaRequest(
-                                mediaType = ImageOnly, maxItems = 3
-                            )
-                        )
-                    }
+                handleImagePermissionAndLaunchPicker(
+                    imagePermissionState,
+                    imagePermissionRequested,
+                    { imagePermissionRequested = it },
+                    activity,
+                    imagePickerLauncher
+                )
 
-                    is PermissionStatus.Denied -> {
-                        if (imagePermissionRequested) {
-                            if (status.shouldShowRationale) {
-                                imagePermissionState.launchPermissionRequest()
-                            } else {
-                                activity?.openAppSettings()
-                            }
-                        } else {
-                            imagePermissionState.launchPermissionRequest()
-                            imagePermissionRequested = true
-                        }
-                    }
-                }
 
             }) {
                 Row {

@@ -62,7 +62,6 @@ fun SettingsViewScreen(
         }
 
         SettingsSection("About") {
-            SettingsNavItem(icon = Icons.Default.Build, title = "Help") { /* TODO */ }
             SettingsNavItem(icon = Icons.Default.Build, title = "Contact Us") { /* TODO */ }
         }
     }

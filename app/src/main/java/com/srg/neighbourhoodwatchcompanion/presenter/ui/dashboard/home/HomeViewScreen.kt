@@ -1,7 +1,6 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.dashboard.home
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,18 +29,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.extension.cast
 import com.srg.neighbourhoodwatchcompanion.AppNavigator
 import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
-import com.srg.neighbourhoodwatchcompanion.R
 import com.srg.neighbourhoodwatchcompanion.common.LargeSpacer
 import com.srg.neighbourhoodwatchcompanion.common.MediumSpacer
 
@@ -52,8 +55,10 @@ fun HomeViewScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     appNavigator: AppNavigator,
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val firstName by viewModel.userName.collectAsState()
+    val profileImage by viewModel.profileImage.collectAsState()
 
 
     LaunchedEffect(uiState) {
@@ -84,9 +89,15 @@ fun HomeViewScreen(
                 style = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold)
             )
 
-            Image(
-                painter = painterResource(R.drawable.ic_launcher_background),
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(profileImage)
+                    .crossfade(true)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .build(),
                 null,
+                contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .padding(10.dp)
                     .size(90.dp)

@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
 import com.srg.neighbourhoodwatchcompanion.common.showToast
+import com.srg.neighbourhoodwatchcompanion.domain.usecase.home.GetUserInfoUseCase
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.NeighbourhoodWatchCompanionTheme
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.NavGraphs
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.DashboardScreenDestination
@@ -38,6 +39,10 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var supabaseAuth: Auth
+
+    @Inject
+    lateinit var getUserInfoUseCase: GetUserInfoUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var showSplashScreen: Boolean = true
@@ -49,6 +54,9 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             isLoggedIn = supabaseAuth.loadFromStorage()
+            if (isLoggedIn) {
+                getUserInfoUseCase(Unit).collect {}
+            }
         }.invokeOnCompletion {
             showSplashScreen = false
             setContent {

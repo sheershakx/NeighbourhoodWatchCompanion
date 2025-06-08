@@ -38,8 +38,12 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideUserRepo(postgrest: Postgrest, supabaseAuth: Auth): UserRepo {
-        return UserRepoImpl(postgrest, supabaseAuth)
+    fun provideUserRepo(
+        postgrest: Postgrest,
+        supabaseAuth: Auth,
+        supabaseStorage: Storage
+    ): UserRepo {
+        return UserRepoImpl(postgrest, supabaseAuth, supabaseStorage)
     }
 
     @Singleton

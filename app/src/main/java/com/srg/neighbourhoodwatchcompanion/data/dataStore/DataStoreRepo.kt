@@ -30,6 +30,10 @@ class DataStoreRepo @Inject constructor(
     val userId = dataStore.data.map {
         it[DataStorePreferencesKeys.USER_ID]
     }
+    val profileImage = dataStore.data.map {
+        it[DataStorePreferencesKeys.PROFILE_IMAGE]
+    }
+
 
     suspend fun saveUserData(
         userInfo: UserInfo
@@ -41,6 +45,14 @@ class DataStoreRepo @Inject constructor(
             it[DataStorePreferencesKeys.MOBILE] = userInfo.mobile.toString()
             it[DataStorePreferencesKeys.USER_ID] = userInfo.userId.toString()
         }
+    }
+
+    suspend fun saveProfileImage(signedUrl: String) {
+        dataStore.edit {
+            it[DataStorePreferencesKeys.PROFILE_IMAGE] = signedUrl
+        }
+
+
     }
 
     suspend fun clearUser() {

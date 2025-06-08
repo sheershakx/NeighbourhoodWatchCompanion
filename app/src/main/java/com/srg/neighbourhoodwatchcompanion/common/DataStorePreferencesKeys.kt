@@ -8,4 +8,5 @@ object DataStorePreferencesKeys {
     val EMAIL = stringPreferencesKey("email")
     val MOBILE = stringPreferencesKey("mobile")
     val USER_ID = stringPreferencesKey("user_id")
+    val PROFILE_IMAGE = stringPreferencesKey("profile_image")
 }
