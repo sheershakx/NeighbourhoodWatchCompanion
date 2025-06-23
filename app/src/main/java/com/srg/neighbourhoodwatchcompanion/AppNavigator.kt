@@ -6,12 +6,14 @@ import com.ramcosta.composedestinations.annotation.NavGraph
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.AccountEditScreenDestination
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.ContactUsScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.DashboardScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.IncidentFormScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LocationInputScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LoginScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.MapViewScreenDestination
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.PrivacyPolicyScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.RegisterScreenDestination
 
 
@@ -25,6 +27,8 @@ interface AppNavigator {
     fun navigateBack()
     fun openLocationInputScreen()
     fun openAccountEditScreen()
+    fun openContactUsScreen()
+    fun openPrivacyPolicyScreen()
 }
 
 class AppNavigatorImpl constructor(
@@ -89,6 +93,14 @@ class AppNavigatorImpl constructor(
 
     override fun openAccountEditScreen() {
         destinationNavigator.navigate(AccountEditScreenDestination)
+    }
+
+    override fun openContactUsScreen() {
+        destinationNavigator.navigate(ContactUsScreenDestination)
+    }
+
+    override fun openPrivacyPolicyScreen() {
+        destinationNavigator.navigate(PrivacyPolicyScreenDestination)
     }
 
 }

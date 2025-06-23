@@ -2,6 +2,7 @@ package com.srg.neighbourhoodwatchcompanion.presenter.ui.dashboard.mapview
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +21,13 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -33,7 +38,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -56,6 +63,7 @@ import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.common.formatDateTimeForDisplay
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.Black
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.DangerColor
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.Pink80
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.WarningColor
 import kotlin.math.absoluteValue
 
@@ -69,6 +77,8 @@ fun MapViewScreen(
     //vm data variables
     val detailedIncidents = viewModel.detailedIncidents.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+
+    var isExpanded by remember { mutableStateOf(false) }
 
 
     //map variables
@@ -158,15 +168,20 @@ fun MapViewScreen(
                             .currentPageOffsetFraction
                         ).absoluteValue
                 IncidentCard(
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = 1f - 0.08f * pageOffset
-                        scaleY = 1f - 0.15f * pageOffset
-                    },
+                    modifier = Modifier
+                        .graphicsLayer {
+                            scaleX = 1f - 0.08f * pageOffset
+                            scaleY = 1f - 0.15f * pageOffset
+                        }
+                        .animateContentSize(),
                     incidentType = incidentCardDataMapped[page].incidentType,
                     location = incidentCardDataMapped[page].location,
                     dateTime = incidentCardDataMapped[page].dateTime,
-                    casualties = incidentCardDataMapped[page].casualties
-                )
+                    casualties = incidentCardDataMapped[page].casualties,
+                    isExpanded = isExpanded
+                ) {
+                    isExpanded = !isExpanded
+                }
             }
 
         }
@@ -180,11 +195,12 @@ fun IncidentCard(
     location: String,
     dateTime: String,
     casualties: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isExpanded: Boolean,
+    onDetailsClicked: () -> Unit
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
@@ -195,8 +211,59 @@ fun IncidentCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            IncidentInfoRow(icon = Icons.Filled.Warning, label = "Incident", value = incidentType)
-            IncidentInfoRow(icon = Icons.Default.LocationOn, label = "Location", value = location)
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    IncidentInfoRow(
+                        icon = Icons.Filled.Warning,
+                        label = "Incident",
+                        value = incidentType
+                    )
+                    if (isExpanded) {
+                        IncidentInfoRow(
+                            icon = Icons.Default.Person,
+                            label = "Title",
+                            value = casualties
+                        )
+                        IncidentInfoRow(
+                            icon = Icons.Default.Person,
+                            label = "Description",
+                            value = casualties
+                        )
+                    }
+                    IncidentInfoRow(
+                        icon = Icons.Default.LocationOn,
+                        label = "Location",
+                        value = location
+                    )
+                }
+                AssistChip(
+                    modifier = Modifier.height(28.dp),
+                    onClick = {
+                        onDetailsClicked()
+                    },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = "Details",
+                        )
+                    },
+                    label = {
+                        Text(
+                            if (isExpanded) "Hide" else "Show",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    shape = RoundedCornerShape(50),
+                    border = AssistChipDefaults.assistChipBorder(enabled = true),
+                    colors = AssistChipDefaults.assistChipColors(containerColor = Pink80),
+                )
+            }
+
             IncidentInfoRow(
                 icon = Icons.Default.DateRange,
                 label = "Date & Time",
@@ -228,3 +295,4 @@ fun IncidentInfoRow(icon: ImageVector, label: String, value: String) {
         )
     }
 }
+

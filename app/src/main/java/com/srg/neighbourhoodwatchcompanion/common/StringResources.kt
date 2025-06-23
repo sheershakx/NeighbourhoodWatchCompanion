@@ -2,6 +2,13 @@ package com.srg.neighbourhoodwatchcompanion.common
 
 
 object StringResources {
+    //Statements
+    val CONTACT_US_MESSAGE="If you encounter any problems or have any queries, feel free to reach out to us via email. We’ll get back to you as soon as possible."
+    val CONTACT_US_TITLE="Have a question, found an issue, or need help using the app?\n" +
+            "We’re here to assist you!"
+    const val CONTACT_EMAIL="sheershakrg.business@gmail.com"
+
+
     //Widget's text
     val LOGIN = "Login"
     val REGISTER = "Register"
@@ -27,5 +34,7 @@ object StringResources {
     val INCIDENTS_TABLE = "incidents"
     val INCIDENT_IMAGES_TABLE = "incident_images"
     val INCIDENT_LOCATION_INFO_TABLE = "incident_location_info"
+
+
 
 }

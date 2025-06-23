@@ -58,11 +58,15 @@ fun SettingsViewScreen(
         SettingsSection("Privacy") {
             SettingsNavItem(
                 icon = Icons.Default.LocationOn, title = "Location Sharing"
-            ) { /* TODO */ }
+            ) {
+                appNavigator.openPrivacyPolicyScreen()
+            }
         }
 
         SettingsSection("About") {
-            SettingsNavItem(icon = Icons.Default.Build, title = "Contact Us") { /* TODO */ }
+            SettingsNavItem(icon = Icons.Default.Build, title = "Contact Us") {
+                appNavigator.openContactUsScreen()
+            }
         }
     }
 
