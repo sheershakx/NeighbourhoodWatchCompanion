@@ -5,10 +5,12 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.NavGraph
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.srg.neighbourhoodwatchcompanion.data.model.GetDetailedIncident
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.AccountEditScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.ContactUsScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.DashboardScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.IncidentDetailsScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.IncidentFormScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LocationInputScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LoginScreenDestination
@@ -29,6 +31,7 @@ interface AppNavigator {
     fun openAccountEditScreen()
     fun openContactUsScreen()
     fun openPrivacyPolicyScreen()
+    fun openIncidentDetailsScreen(incident: GetDetailedIncident)
 }
 
 class AppNavigatorImpl constructor(
@@ -78,6 +81,7 @@ class AppNavigatorImpl constructor(
     override fun openIncidentFormScreen() {
         destinationNavigator.navigate(IncidentFormScreenDestination) {
             popUpTo(HomeViewScreenDestination) {
+
                 launchSingleTop = true
             }
         }
@@ -103,18 +107,16 @@ class AppNavigatorImpl constructor(
         destinationNavigator.navigate(PrivacyPolicyScreenDestination)
     }
 
+    override fun openIncidentDetailsScreen(incident: GetDetailedIncident) {
+        destinationNavigator.navigate(IncidentDetailsScreenDestination(incident))
+    }
+
 }
 
 @RootNavGraph
 @NavGraph
 @Destination
 annotation class BottomNavGraph(
-    val start: Boolean = false
-)
-
-@BottomNavGraph
-@NavGraph
-annotation class ActionNavGraph(
     val start: Boolean = false
 )
 

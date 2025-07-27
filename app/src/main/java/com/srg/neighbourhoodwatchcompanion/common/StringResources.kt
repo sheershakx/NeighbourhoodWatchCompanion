@@ -3,6 +3,7 @@ package com.srg.neighbourhoodwatchcompanion.common
 
 object StringResources {
     //Statements
+    val DASHBOARD_MESSAGE="Keeping community safe is our priority. Report any incidents you encounter."
     val CONTACT_US_MESSAGE="If you encounter any problems or have any queries, feel free to reach out to us via email. We’ll get back to you as soon as possible."
     val CONTACT_US_TITLE="Have a question, found an issue, or need help using the app?\n" +
             "We’re here to assist you!"

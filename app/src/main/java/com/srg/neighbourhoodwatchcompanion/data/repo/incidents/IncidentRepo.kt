@@ -26,6 +26,8 @@ interface IncidentRepo {
     suspend fun insertImagePaths(incidentImage: IncidentImage)
     suspend fun insertLocationInformation(locationInformation: IncidentLocationInformation)
     suspend fun getDetailedIncidents(): List<GetDetailedIncident>
+    suspend fun getDetailedIncidentsById(): GetDetailedIncident
+    suspend fun getIncidentImagesSignedUrlsByIncidentId(incidentId: String): List<String>
 }
 
 class IncidentRepoImpl @Inject constructor(
@@ -70,5 +72,27 @@ class IncidentRepoImpl @Inject constructor(
         return postgrest.rpc("get_detailed_incidents").decodeList<GetDetailedIncident>()
     }
 
+    override suspend fun getDetailedIncidentsById(): GetDetailedIncident {
+        TODO("Not yet implemented")
+    }
 
+    override suspend fun getIncidentImagesSignedUrlsByIncidentId(incidentId: String): List<String> {
+        var signedUrlList = emptyList<String>()
+        val pathList = postgrest.from(INCIDENT_IMAGES_TABLE).select {
+
+            filter {
+                IncidentImage::incidentId eq incidentId
+            }
+        }.decodeList<IncidentImage>().map { it.path }
+        if (pathList.isNotEmpty()) {
+            signedUrlList = pathList.map { path ->
+                val bucket = supabaseStorage.from(INCIDENT_IMAGES_BUCKET)
+                bucket.publicUrl(path=path)
+//                bucket.createSignedUrl(path = path, expiresIn = 10.minutes)
+            }
+        }
+        return signedUrlList
+
+    }
 }
+

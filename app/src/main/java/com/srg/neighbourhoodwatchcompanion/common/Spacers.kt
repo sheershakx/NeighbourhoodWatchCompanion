@@ -17,4 +17,8 @@ fun MediumSpacer() = Spacer(modifier = Modifier.height(12.dp))
 fun LargeSpacer() = Spacer(modifier = Modifier.height(18.dp))
 
 @Composable
+fun XLSpacer() = Spacer(modifier = Modifier.height(24.dp))
+
+
+@Composable
 fun CustomSpacer(height: Int) = Spacer(modifier = Modifier.height(height.dp))

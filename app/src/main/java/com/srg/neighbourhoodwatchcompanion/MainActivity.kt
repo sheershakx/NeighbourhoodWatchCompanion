@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
         }
         val finish: () -> Unit = backPressHandler()
 
+
         lifecycleScope.launch {
             isLoggedIn = supabaseAuth.loadFromStorage()
             if (isLoggedIn) {
@@ -60,7 +62,15 @@ class MainActivity : ComponentActivity() {
             }
         }.invokeOnCompletion {
             showSplashScreen = false
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+
             setContent {
+                enableEdgeToEdge()
+                /** FOR SETTING STATUS BAR COLOR
+                 * statusBarStyle = SystemBarStyle.light(
+                WarningColor.toArgb(),
+                WarningColor.toArgb())
+                 * */
                 NeighbourhoodWatchCompanionTheme {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
@@ -74,7 +84,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        enableEdgeToEdge()
 
     }
 
@@ -126,7 +135,11 @@ fun RootView(
         }
     }
 
-    Column(modifier = Modifier.padding(innerPadding)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+    ) {
         //attach any view as per app state and requirement
         DestinationsNavHost(
             navController = navHostController,
