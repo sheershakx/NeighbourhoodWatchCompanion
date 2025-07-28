@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -41,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -53,6 +52,7 @@ import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.extension.cast
 import com.srg.neighbourhoodwatchcompanion.AppNavigator
 import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
+import com.srg.neighbourhoodwatchcompanion.R
 import com.srg.neighbourhoodwatchcompanion.common.LargeSpacer
 import com.srg.neighbourhoodwatchcompanion.common.MediumSpacer
 import com.srg.neighbourhoodwatchcompanion.common.MyLabel
@@ -63,8 +63,7 @@ import com.srg.neighbourhoodwatchcompanion.common.StringResources.FIRST_NAME
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.LAST_NAME
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.MOBILE
 import com.srg.neighbourhoodwatchcompanion.common.showToast
-import com.srg.neighbourhoodwatchcompanion.presenter.theme.PurpleGrey40
-
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.Purple90
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalPermissionsApi::class)
@@ -140,7 +139,7 @@ fun AccountEditScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(105.dp)
-                        .background(color = PurpleGrey40)
+                        .background(color = Purple90)
                 )
                 AsyncImage(
                     model = ImageRequest.Builder(context)
@@ -170,7 +169,13 @@ fun AccountEditScreen(
                             imagePickerLauncher
                         )
                     }) {
-                    Icon(Icons.Filled.Edit, "Edit image")
+                    Icon(
+                        modifier = Modifier
+                            .size(32.dp),
+                        painter = painterResource(id = R.drawable.camera_circle_icon),
+                        contentDescription = "",
+                        tint = Color.DarkGray
+                    )
                 }
 
             }

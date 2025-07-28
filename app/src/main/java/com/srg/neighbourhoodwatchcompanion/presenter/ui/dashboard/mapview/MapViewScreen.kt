@@ -65,7 +65,8 @@ import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.common.formatDateTimeForDisplay
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.Black
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.DangerColor
-import com.srg.neighbourhoodwatchcompanion.presenter.theme.Pink80
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.Purple80
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.Purple90
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.WarningColor
 import kotlin.math.absoluteValue
 
@@ -208,7 +209,8 @@ fun IncidentCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = Purple90)
     ) {
         Column(
             modifier = Modifier
@@ -266,7 +268,7 @@ fun IncidentCard(
                     },
                     shape = RoundedCornerShape(50),
                     border = AssistChipDefaults.assistChipBorder(enabled = true),
-                    colors = AssistChipDefaults.assistChipColors(containerColor = Pink80),
+                    colors = AssistChipDefaults.assistChipColors(containerColor = Purple80),
                 )
             }
 
@@ -290,7 +292,7 @@ fun IncidentInfoRow(icon: ImageVector, label: String, value: String) {
             imageVector = icon,
             contentDescription = label,
             modifier = Modifier.size(20.dp),
-            tint = if (label == "Incident") WarningColor else MaterialTheme.colorScheme.primary
+            tint = if (label == "Incident") WarningColor else Color.LightGray
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(

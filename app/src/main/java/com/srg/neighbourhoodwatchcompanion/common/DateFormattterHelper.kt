@@ -20,7 +20,7 @@ fun Long?.formatDateFromMillis(): String {
 @RequiresApi(Build.VERSION_CODES.O)
 fun String.formatDateTimeForDisplay(): String {
     val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-    val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a", Locale.getDefault())
+    val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd | h:mm a", Locale.getDefault())
     val dateTime = LocalDateTime.parse(this, inputFormatter)
     return dateTime.format(outputFormatter)
 }

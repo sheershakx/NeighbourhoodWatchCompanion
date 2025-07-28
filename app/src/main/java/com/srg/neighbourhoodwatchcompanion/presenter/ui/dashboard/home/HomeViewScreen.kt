@@ -21,13 +21,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,6 +59,8 @@ import com.srg.neighbourhoodwatchcompanion.common.SmallSpacer
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.DASHBOARD_MESSAGE
 import com.srg.neighbourhoodwatchcompanion.common.formatDateTimeForDisplay
 import com.srg.neighbourhoodwatchcompanion.data.model.GetDetailedIncident
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.Black
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.LightGray
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.Pink40
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.PinkCard
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.Purple40
@@ -104,13 +106,16 @@ fun HomeViewScreen(
 
     //todo (each time home is clicked (not the case of pressing back from mapview tab), the app is calling api for user_name
     // reduce the time, either by remembering or saving to the savedState)
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
+    ) {
         //Greetings View
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 5.dp)
                     .align(Alignment.CenterVertically)
             ) {
                 Text(
@@ -144,11 +149,14 @@ fun HomeViewScreen(
         }
         //Data dashboard
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
             CardView(
                 Modifier
                     .weight(1f)
-                    .padding(6.dp),
+                    .padding(vertical = 6.dp),
                 defaultCardColor.copy(containerColor = YellowCard),
                 "Incident this week",
                 "23"
@@ -156,7 +164,7 @@ fun HomeViewScreen(
             CardView(
                 Modifier
                     .weight(1f)
-                    .padding(6.dp),
+                    .padding(vertical = 6.dp),
                 defaultCardColor.copy(containerColor = RedCard),
                 "Casualties this week", "23"
             )
@@ -167,7 +175,7 @@ fun HomeViewScreen(
             Modifier
                 .fillMaxWidth()
 
-                .padding(6.dp),
+                .padding(vertical = 6.dp),
             defaultCardColor.copy(containerColor = PinkCard),
             "Total Incident reports", "234"
         )
@@ -206,6 +214,12 @@ fun HomeViewScreen(
         }
         SmallSpacer()
 
+        Text(
+            "Recent Incidents",
+            style = MaterialTheme.typography.titleMedium.copy(color = Black, fontSize = 20.sp)
+        )
+        SmallSpacer()
+
         //listview
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(detailedIncidents) { item ->
@@ -225,8 +239,10 @@ fun CardRowView(item: GetDetailedIncident, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(vertical = 10.dp, horizontal = 2.dp)
             .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(3.dp),
+        colors = CardDefaults.cardColors(containerColor = LightGray)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -247,10 +263,7 @@ fun CardRowView(item: GetDetailedIncident, onClick: () -> Unit) {
                     item.primaryText,
                     style = TextStyle.Default.copy(fontSize = 14.sp)
                 )
-
-
             }
-            Icon(Icons.Filled.CheckCircle, null, modifier = Modifier.size(20.dp), tint = Color.Red)
 
         }
     }
