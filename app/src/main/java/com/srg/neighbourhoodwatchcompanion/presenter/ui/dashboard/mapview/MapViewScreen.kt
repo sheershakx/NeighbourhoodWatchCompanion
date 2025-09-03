@@ -22,26 +22,22 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,9 +61,8 @@ import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.common.formatDateTimeForDisplay
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.Black
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.DangerColor
-import com.srg.neighbourhoodwatchcompanion.presenter.theme.Purple80
-import com.srg.neighbourhoodwatchcompanion.presenter.theme.Purple90
-import com.srg.neighbourhoodwatchcompanion.presenter.theme.WarningColor
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.colors
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.typo
 import kotlin.math.absoluteValue
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -78,10 +73,8 @@ fun MapViewScreen(
     appNavigator: AppNavigator,
 ) {
     //vm data variables
-    val detailedIncidents = viewModel.detailedIncidents.collectAsState()
+    val detailedIncidents by viewModel.detailedIncidents.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
-
-    var isExpanded by remember { mutableStateOf(false) }
 
 
     //map variables
@@ -97,27 +90,18 @@ fun MapViewScreen(
         myLocationButtonEnabled = true
     )
 
-    val incidentCardDataMapped =
-        detailedIncidents.value.map {
-            IncidentCardDataModel(
-                incidentType = it.incidentType,
-                location = it.primaryText,
-                dateTime = it.date,
-                casualties = it.casualties
-            )
-        }
 
     val pagerState = rememberPagerState {
-        incidentCardDataMapped.size
+        detailedIncidents.size
     }
 
-    LaunchedEffect(pagerState.currentPage, detailedIncidents.value.size) {
-        if (detailedIncidents.value.isNotEmpty()) {
+    LaunchedEffect(pagerState.currentPage, detailedIncidents.size) {
+        if (detailedIncidents.isNotEmpty()) {
             cameraPositionState.animate(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(
-                        detailedIncidents.value[pagerState.currentPage].lat,
-                        detailedIncidents.value[pagerState.currentPage].lng
+                        detailedIncidents[pagerState.currentPage].lat,
+                        detailedIncidents[pagerState.currentPage].lng
                     ), zoomState.floatValue
                 ), 800
             )
@@ -148,7 +132,7 @@ fun MapViewScreen(
                 properties = mapProperties,
                 uiSettings = mapUiSettings,
             ) {
-                detailedIncidents.value.forEachIndexed { currentPage, it ->
+                detailedIncidents.forEachIndexed { currentPage, it ->
                     Circle(
                         center = LatLng(it.lat, it.lng),
                         radius = 500.0,
@@ -181,13 +165,12 @@ fun MapViewScreen(
                             scaleY = 1f - 0.15f * pageOffset
                         }
                         .animateContentSize(),
-                    incidentType = incidentCardDataMapped[page].incidentType,
-                    location = incidentCardDataMapped[page].location,
-                    dateTime = incidentCardDataMapped[page].dateTime,
-                    casualties = incidentCardDataMapped[page].casualties,
-                    isExpanded = isExpanded
+                    incidentType = detailedIncidents[page].incidentType,
+                    location = detailedIncidents[page].primaryText,
+                    dateTime = detailedIncidents[page].date,
+                    casualties = detailedIncidents[page].casualties,
                 ) {
-                    isExpanded = !isExpanded
+                    appNavigator.openIncidentDetailsScreen(detailedIncidents[page])
                 }
             }
 
@@ -203,101 +186,75 @@ fun IncidentCard(
     dateTime: String,
     casualties: String,
     modifier: Modifier = Modifier,
-    isExpanded: Boolean,
-    onDetailsClicked: () -> Unit
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Purple90)
+        colors = CardDefaults.cardColors(
+            containerColor = colors.surface,
+            contentColor = colors.onSurface
+        )
+
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Max)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceEvenly
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    IncidentInfoRow(
-                        icon = Icons.Filled.Warning,
-                        label = "Incident",
-                        value = incidentType
-                    )
-                    if (isExpanded) {
-                        IncidentInfoRow(
-                            icon = Icons.Default.Person,
-                            label = "Title",
-                            value = casualties
-                        )
-                        IncidentInfoRow(
-                            icon = Icons.Default.Person,
-                            label = "Description",
-                            value = casualties
-                        )
-                    }
-                    IncidentInfoRow(
-                        icon = Icons.Default.LocationOn,
-                        label = "Location",
-                        value = location
-                    )
-                }
-                AssistChip(
-                    modifier = Modifier.height(28.dp),
-                    onClick = {
-                        onDetailsClicked()
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Details",
-                        )
-                    },
-                    label = {
-                        Text(
-                            if (isExpanded) "Hide" else "Show",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    },
-                    shape = RoundedCornerShape(50),
-                    border = AssistChipDefaults.assistChipBorder(enabled = true),
-                    colors = AssistChipDefaults.assistChipColors(containerColor = Purple80),
-                )
-            }
-
+            IncidentInfoRow(
+                icon = Icons.Filled.Warning,
+                value = incidentType
+            )
             IncidentInfoRow(
                 icon = Icons.Default.DateRange,
-                label = "Date & Time",
                 value = dateTime.formatDateTimeForDisplay()
             )
-            IncidentInfoRow(icon = Icons.Default.Person, label = "Casualties", value = casualties)
+            IncidentInfoRow(
+                icon = Icons.Default.LocationOn,
+                value = location
+            )
+            IncidentInfoRow(
+                icon = Icons.Default.Person,
+                value = casualties
+            )
+            IncidentInfoRow(
+                icon = Icons.Default.Info,
+                value = "description sample description sample description"
+            )
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 5.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primary),
+                onClick = {
+                    onClick()
+                }) {
+                Text("View Full Details", style = typo.labelSmall.copy(color = colors.onPrimary))
+            }
         }
     }
 }
 
 @Composable
-fun IncidentInfoRow(icon: ImageVector, label: String, value: String) {
+fun IncidentInfoRow(icon: ImageVector, value: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(vertical = 2.dp)
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = label,
+            contentDescription = icon.name,
             modifier = Modifier.size(20.dp),
-            tint = if (label == "Incident") WarningColor else Color.LightGray
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "$label: $value",
-            style = MaterialTheme.typography.bodyMedium,
+            text = value,
+            style = typo.bodySmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

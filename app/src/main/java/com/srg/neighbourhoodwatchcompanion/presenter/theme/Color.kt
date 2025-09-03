@@ -23,4 +23,16 @@ val YellowCard = Color(0xFFf6d465)
 val RedCard = Color(0xFFf0523d)
 val PinkCard = Color(0xFFffb0e0)
 
-val LightGray = Color(0xFFEDEDF5)
+
+//new colors
+// Neutral colors
+val White = Color(0xFFFFFFFF)
+val LightGrayishBlue = Color(0xFFF3F4F8)
+val VeryLightGray = Color(0xFFFCFCFC)
+val LightGray = Color(0xFFF4F4F4)
+val PaleGray = Color(0xFFF1F2F6)
+val DarkGray = Color(0xFF484747)
+
+
+// Dark / Accent
+val DarkCharcoal = Color(0xFF2E2E2E)

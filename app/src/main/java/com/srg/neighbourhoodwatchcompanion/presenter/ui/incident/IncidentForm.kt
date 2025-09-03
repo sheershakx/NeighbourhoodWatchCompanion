@@ -83,6 +83,8 @@ import com.srg.neighbourhoodwatchcompanion.common.LargeSpacer
 import com.srg.neighbourhoodwatchcompanion.common.PermissionHelper.handleImagePermissionAndLaunchPicker
 import com.srg.neighbourhoodwatchcompanion.common.formatDateFromMillis
 import com.srg.neighbourhoodwatchcompanion.common.showToast
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.colors
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.typo
 import io.github.jan.supabase.exceptions.BadRequestRestException
 import java.util.Calendar
 
@@ -192,7 +194,7 @@ fun IncidentFormScreen(
                 .alpha(if (uiState is BaseViewState.Loading) 0.5f else 1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Incident Type")
+            Text("Incident Type", style = typo.titleMedium.copy(color = colors.onSurface))
             ExposedDropdownMenuBox(
                 expanded = typeExpandedState,
                 onExpandedChange = { typeExpandedState = it }) {
@@ -222,14 +224,14 @@ fun IncidentFormScreen(
                     }
                 }
             }
-            Text("Title")
+            Text("Title", style = typo.titleMedium.copy(color = colors.onSurface))
             InputValidationTextField(
                 modifier = Modifier.fillMaxWidth(),
                 inputWrapper = title,
                 placeHolder = "Incident title",
                 onValueChange = viewModel::onTitleUpdated
             )
-            Text("Description")
+            Text("Description", style = typo.titleMedium.copy(color = colors.onSurface))
             InputValidationTextField(
                 modifier = Modifier.fillMaxWidth(),
                 inputWrapper = description,
@@ -243,7 +245,7 @@ fun IncidentFormScreen(
                 Column(
                     modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Date")
+                    Text("Date", style = typo.titleMedium.copy(color = colors.onSurface))
                     DatePickerField(selectedDate = date, onDateSelected = {
                         viewModel.onDateUpdated(it)
                     })
@@ -251,7 +253,7 @@ fun IncidentFormScreen(
                 Column(
                     modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Time")
+                    Text("Time", style = typo.titleMedium.copy(color = colors.onSurface))
                     TimePickerField(time) {
                         viewModel.onTimeUpdated("${it.first}:${it.second}")
 
@@ -261,7 +263,7 @@ fun IncidentFormScreen(
 
             }
 
-            Text("Location")
+            Text("Location", style = typo.titleMedium.copy(color = colors.onSurface))
             InputValidationTextField(
                 modifier = Modifier.fillMaxWidth(),
                 inputWrapper = Pair(incidentLocationInformation.primaryText, ""),
@@ -295,7 +297,7 @@ fun IncidentFormScreen(
                 }
             }
 
-            Text("Images")
+            Text("Images", style = typo.titleMedium.copy(color = colors.onSurface))
             OutlinedButton(onClick = {
                 handleImagePermissionAndLaunchPicker(
                     imagePermissionState,
@@ -304,8 +306,6 @@ fun IncidentFormScreen(
                     activity,
                     imagePickerLauncher
                 )
-
-
             }) {
                 Row {
                     Text("Upload image ")
@@ -321,7 +321,7 @@ fun IncidentFormScreen(
             }
 
 
-            Text("Casualties")
+            Text("Casualties", style = typo.titleMedium.copy(color = colors.onSurface))
             InputValidationTextField(
                 modifier = Modifier.fillMaxWidth(),
                 inputWrapper = casualties,

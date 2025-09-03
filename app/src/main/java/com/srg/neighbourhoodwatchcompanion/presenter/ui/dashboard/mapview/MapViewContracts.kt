@@ -9,10 +9,3 @@ data class MapViewState(
 sealed class MapViewEvent {
     data class MapMarkerClicked(val page: Int) : MapViewEvent()
 }
-
-data class IncidentCardDataModel(
-    val incidentType: String,
-    val location: String,
-    val dateTime: String,
-    val casualties: String
-)

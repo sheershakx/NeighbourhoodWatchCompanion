@@ -47,7 +47,7 @@ fun DashboardScreen() {
 
     Scaffold(
         topBar = {
-           customBottomTopBarObject.CustomTopAppBar(
+            customBottomTopBarObject.CustomTopAppBar(
                 navController = navHostController
             )
         },

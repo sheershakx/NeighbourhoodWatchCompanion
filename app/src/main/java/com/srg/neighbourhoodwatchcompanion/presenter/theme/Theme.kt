@@ -21,22 +21,38 @@ private val LightColorScheme = lightColorScheme(
     secondary = PurpleGrey40,
     tertiary = Pink40
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
 )
+
+// new theme
+private val LightColors = lightColorScheme(
+    primary = DarkCharcoal,
+    onPrimary = White,
+    secondary = LightGrayishBlue,
+    onSecondary = DarkCharcoal,
+    background = VeryLightGray,
+    onBackground = DarkCharcoal,
+    surface = White,
+    onSurface = DarkCharcoal,
+    onSurfaceVariant = DarkGray
+)
+
+private val DarkColors = darkColorScheme(
+    primary = White,
+    onPrimary = DarkCharcoal,
+    secondary = LightGray,
+    onSecondary = White,
+    background = DarkCharcoal,
+    onBackground = White,
+    surface = DarkCharcoal,
+    onSurface = White
+)
+
 
 @Composable
 fun NeighbourhoodWatchCompanionTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -45,8 +61,8 @@ fun NeighbourhoodWatchCompanionTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> DarkColors
+        else -> LightColors
     }
 
     MaterialTheme(
@@ -55,3 +71,6 @@ fun NeighbourhoodWatchCompanionTheme(
         content = content
     )
 }
+
+@Composable
+fun AppTypo() = MaterialTheme.typography
