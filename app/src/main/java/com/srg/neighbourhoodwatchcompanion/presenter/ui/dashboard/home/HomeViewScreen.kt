@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,21 +20,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,11 +43,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
@@ -67,7 +69,6 @@ import com.srg.neighbourhoodwatchcompanion.common.formatDateTimeForDisplay
 import com.srg.neighbourhoodwatchcompanion.data.model.GetDetailedIncident
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.colors
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.typo
-import timber.log.Timber
 
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -83,6 +84,8 @@ fun HomeViewScreen(
     val firstName by viewModel.userName.collectAsState()
     val profileImage by viewModel.profileImage.collectAsState()
     val detailedIncidents by viewModel.detailedIncidents.collectAsState()
+    val currentLocation by viewModel.currentLocationData.collectAsState()
+    val neighbourhoodName by viewModel.neighbourhoodName.collectAsState()
     val activity = LocalActivity.current
     val locationPermissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
@@ -91,7 +94,6 @@ fun HomeViewScreen(
         )
     )
     var locationPermissionRequested by rememberSaveable { mutableStateOf(false) }
-    var currentLocation by remember { mutableStateOf(Pair(0.0, 0.0)) }
     val defaultCardColor = CardColors(
         containerColor = Color.LightGray,
         contentColor = Color.Black,
@@ -104,11 +106,12 @@ fun HomeViewScreen(
             locationPermissionsState,
             locationPermissionRequested,
             { locationPermissionRequested = it },
-            context
-        ) { lat, lng ->
-            currentLocation = Pair(lat, lng)
-            Timber.tag("Current Location").d("Approx: $lat, $lng")
-        }
+            context,
+            { it ->
+                viewModel.updateCurrentLocation(it)
+                viewModel.onTriggerEvent(HomeEvent.GetNeighbourhoodNameEvent)
+            }
+        )
     }
 
     LaunchedEffect(uiState) {
@@ -127,150 +130,136 @@ fun HomeViewScreen(
 
     //todo (each time home is clicked (not the case of pressing back from mapview tab), the app is calling api for user_name
     // reduce the time, either by remembering or saving to the savedState)
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 10.dp)
-
     ) {
-        //Greetings View
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .align(Alignment.CenterVertically)
-            ) {
-                Text(
-                    "Hi, $firstName",
-                    style = TextStyle(
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colors.onSurface
-                    )
-                )
-                Text(
-                    text = DASHBOARD_MESSAGE,
-                    modifier = Modifier.padding(top = 8.dp),
-                    style = TextStyle(fontSize = 14.sp, fontStyle = FontStyle.Italic),
-                    color = colors.onSurfaceVariant
-                )
+        ExtendedFloatingActionButton(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .zIndex(1f)
+                .padding(15.dp)
+                .border(width = 1.dp, color = colors.secondary, shape = RoundedCornerShape(20.dp)),
+            icon = { Icon(Icons.Filled.AddCircle, "Floating action button.") },
+            text = { Text(text = "Report Incident", style = typo.titleMedium) },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = colors.primary,
+            contentColor = colors.secondary,
+            onClick = {
+                viewModel.onTriggerEvent(HomeEvent.IncidentFormButtonClicked)
+
             }
-
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(profileImage)
-                    .crossfade(true)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
-                    .build(),
-                null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .size(90.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.LightGray, CircleShape)
-            )
-
-        }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Icon(
-                Icons.Default.LocationOn, "Location Icon"
-            )
-            Text(currentLocation.first.toString())
-            IconButton(
-                {
-                    // on click //
-                }
-            ) {
-                Icon(Icons.Default.Refresh, "Refresh Location")
-            }
-        }
-
-        //Data dashboard
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            CardView(
-                Modifier
-                    .weight(1f)
-                    .padding(vertical = 6.dp),
-                defaultCardColor.copy(
-                    containerColor = colors.primary,
-                    contentColor = colors.onPrimary
-                ),
-                "Incident this week",
-                "9"
-            )
-            CardView(
-                Modifier
-                    .weight(1f)
-                    .padding(vertical = 6.dp),
-                defaultCardColor.copy(
-                    containerColor = colors.primary,
-                    contentColor = colors.onPrimary
-                ),
-                "Total Incidents", "23"
-            )
-        }
-
-
-        //Incident report action button
-
-//        Button(modifier = Modifier
-//            .align(Alignment.CenterHorizontally)
-//            .height(IntrinsicSize.Min),
-//            colors = ButtonDefaults.buttonColors(),
-//            elevation = ButtonDefaults.buttonElevation(defaultElevation = 20.dp),
-//            border = BorderStroke(
-//                width = 1.dp, brush = Brush.horizontalGradient(
-//                    listOf(
-//                        Purple40,
-//                        WarningColor, YellowCard, Pink40
-//                    )
-//                )
-//            ),
-//            shape = RoundedCornerShape(60),
-//            onClick = {
-//                viewModel.onTriggerEvent(HomeEvent.IncidentFormButtonClicked)
-//            }) {
-//            Row(
-//                horizontalArrangement = Arrangement.spacedBy(6.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Icon(Icons.Filled.AddCircle, null, modifier = Modifier.size(18.dp))
-//                Text(
-//                    "Report Incident",
-//                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
-//                )
-//
-//
-//            }
-//        }
-        SmallSpacer()
-
-        Text(
-            "Recent Incidents",
-            style = typo.titleMedium.copy(fontSize = 20.sp, color = colors.onSurface)
         )
-        SmallSpacer()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 10.dp)
 
-        //listview
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(detailedIncidents) { item ->
-                CardRowView(item) {
-                    appNavigator.openIncidentDetailsScreen(item)
+        ) {
+            //Greetings View
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Text(
+                        "Hi, $firstName",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Serif,
+                            color = colors.onSurface
+                        )
+                    )
+                    Text(
+                        text = DASHBOARD_MESSAGE,
+                        modifier = Modifier.padding(top = 8.dp),
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = FontFamily.Serif
+                        ),
+                        color = colors.onSurfaceVariant
+                    )
+                }
+
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(profileImage)
+                        .crossfade(true)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .build(),
+                    null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(90.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, Color.LightGray, CircleShape)
+                )
+
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Icon(
+                    Icons.Default.LocationOn, "Location Icon"
+                )
+                Text(neighbourhoodName.toString())
+            }
+
+            //Data dashboard
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CardView(
+                    Modifier
+                        .weight(1f)
+                        .padding(vertical = 6.dp),
+                    defaultCardColor.copy(
+                        containerColor = colors.onSurfaceVariant,
+                        contentColor = colors.onPrimary
+                    ),
+                    "Incident this week",
+                    "9"
+                )
+                CardView(
+                    Modifier
+                        .weight(1f)
+                        .padding(vertical = 6.dp),
+                    defaultCardColor.copy(
+                        containerColor = colors.onSurfaceVariant,
+                        contentColor = colors.onPrimary
+                    ),
+                    "Total Incidents", "23"
+                )
+            }
+
+            SmallSpacer()
+
+            Text(
+                "Recent Incidents",
+                style = typo.titleMedium.copy(fontSize = 20.sp, color = colors.onSurface)
+            )
+            SmallSpacer()
+
+            //listview
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(detailedIncidents) { item ->
+                    CardRowView(item) {
+                        appNavigator.openIncidentDetailsScreen(item)
+                    }
                 }
             }
+
+
         }
-
-
     }
 }
 
@@ -348,9 +337,3 @@ fun CardView(modifier: Modifier, cardColor: CardColors, title: String, data: Str
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun HomeScreenPreview() {
-//    HomeViewScreen()
-//}

@@ -63,6 +63,7 @@ import com.srg.neighbourhoodwatchcompanion.common.StringResources.FIRST_NAME
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.LAST_NAME
 import com.srg.neighbourhoodwatchcompanion.common.StringResources.MOBILE
 import com.srg.neighbourhoodwatchcompanion.common.showToast
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.DarkCharcoal
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.Purple90
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -139,7 +140,7 @@ fun AccountEditScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(105.dp)
-                        .background(color = Purple90)
+                        .background(color = DarkCharcoal)
                 )
                 AsyncImage(
                     model = ImageRequest.Builder(context)

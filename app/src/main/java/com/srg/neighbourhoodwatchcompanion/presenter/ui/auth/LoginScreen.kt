@@ -62,7 +62,6 @@ fun LoginScreen(
             is BaseViewState.Data -> {
                 val authState = uiState.cast<BaseViewState.Data<AuthState>>().value
                 if (authState.isUserLoggedIn) {
-                    context.showToast("Welcome back !")
                     appNavigator.openDashboardScreen()
                     viewModel.clearState()
                 }

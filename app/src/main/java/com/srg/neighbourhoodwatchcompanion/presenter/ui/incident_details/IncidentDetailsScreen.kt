@@ -74,7 +74,8 @@ fun IncidentDetailsScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 18.dp, vertical = 10.dp)
+            .padding(horizontal = 18.dp)
+            .padding(top = 2.dp, bottom = 10.dp)
     ) {
         //Card wrap for location and map sc
         Card(

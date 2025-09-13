@@ -1,8 +1,5 @@
 package com.srg.neighbourhoodwatchcompanion.common
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -14,15 +11,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.srg.neighbourhoodwatchcompanion.presenter.theme.Black
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.typo
 
 
 @Composable
@@ -44,11 +37,12 @@ fun InputValidationTextField(
             value = inputWrapper.first,
             isError = hasError,
             onValueChange = onValueChange,
+            textStyle = typo.bodyMedium,
             visualTransformation = visualTransformation,
             trailingIcon = mTrailingIcon,
             readOnly = mReadOnly,
             interactionSource = mInteractionSource,
-            placeholder = { Text(placeHolder) }
+            placeholder = { Text(placeHolder, style = typo.bodyMedium) }
         )
 
 
@@ -71,12 +65,9 @@ fun MyLabel(label: String) {
     Text(
         modifier = Modifier.padding(start = 10.dp),
         text = label,
-        style = TextStyle.Default.copy(
-            fontWeight = FontWeight.Thin,
-            color = Black,
-            fontFamily = FontFamily.Serif
-        )
+        style = typo.titleMedium
     )
+
 }
 
 @Composable
@@ -86,6 +77,7 @@ fun MyTextField(stringValue: String, enabled: Boolean = true, onValueChange: (St
             .fillMaxWidth()
             .padding(vertical = 5.dp),
         enabled = enabled,
+        textStyle = typo.bodyMedium,
         value = stringValue,
         onValueChange = onValueChange,
         shape = RoundedCornerShape(15.dp),

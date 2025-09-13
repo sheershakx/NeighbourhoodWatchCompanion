@@ -12,6 +12,7 @@ import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.srg.neighbourhoodwatchcompanion.data.model.LatLngData
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.incident.openAppSettings
 import timber.log.Timber
 
@@ -24,7 +25,7 @@ object PermissionHelper {
         locationPermissionRequested: Boolean,
         setLocationPermissionRequested: (Boolean) -> Unit,
         context: Context,
-        onLocationReceived: (Double, Double) -> Unit
+        onLocationReceived: (LatLngData) -> Unit
     ) {
         when (locationPermissionState.allPermissionsGranted) {
             true -> {
@@ -48,7 +49,7 @@ object PermissionHelper {
 
     @SuppressLint("MissingPermission")   //safe as we check permission before calling this fn
     fun Context.getCurrentLocation(
-        onLocationReceived: (Double, Double) -> Unit
+        onLocationReceived: (LatLngData) -> Unit
     ) {
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.getCurrentLocation(
@@ -56,7 +57,7 @@ object PermissionHelper {
             null
         ).addOnSuccessListener { location ->
             if (location != null) {
-                onLocationReceived(location.latitude, location.longitude)
+                onLocationReceived(LatLngData(location.latitude, location.longitude))
             } else {
                 Timber.e("Could not fetch location")
             }

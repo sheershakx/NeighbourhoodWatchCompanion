@@ -34,6 +34,18 @@ class DataStoreRepo @Inject constructor(
         it[DataStorePreferencesKeys.PROFILE_IMAGE]
     }
 
+    val userLatitude = dataStore.data.map {
+        it[DataStorePreferencesKeys.USER_LATITUDE]
+    }
+
+    val userLongitude = dataStore.data.map {
+        it[DataStorePreferencesKeys.USER_LONGITUDE]
+    }
+
+    val neighbourhood = dataStore.data.map {
+        it[DataStorePreferencesKeys.NEIGHBOURHOOD]
+    }
+
 
     suspend fun saveUserData(
         userInfo: UserInfo
@@ -44,6 +56,14 @@ class DataStoreRepo @Inject constructor(
             it[DataStorePreferencesKeys.EMAIL] = supabaseAuth.currentUserOrNull()?.email.toString()
             it[DataStorePreferencesKeys.MOBILE] = userInfo.mobile.toString()
             it[DataStorePreferencesKeys.USER_ID] = userInfo.userId.toString()
+        }
+    }
+
+    suspend fun saveUserLocationData(latitude: Double, longitude: Double, neighbourhood: String) {
+        dataStore.edit {
+            it[DataStorePreferencesKeys.USER_LATITUDE] = latitude.toString()
+            it[DataStorePreferencesKeys.USER_LONGITUDE] = longitude.toString()
+            it[DataStorePreferencesKeys.NEIGHBOURHOOD] = neighbourhood
         }
     }
 

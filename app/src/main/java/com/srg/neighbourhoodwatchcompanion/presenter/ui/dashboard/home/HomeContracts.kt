@@ -6,7 +6,7 @@ data class HomeState(
 )
 
 sealed class HomeEvent{
-    object Refresh: HomeEvent()
+    object GetNeighbourhoodNameEvent: HomeEvent()
     object IncidentFormButtonClicked: HomeEvent()
 }
 

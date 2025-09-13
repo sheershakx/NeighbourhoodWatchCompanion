@@ -190,7 +190,9 @@ fun IncidentFormScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp)
+                .padding(horizontal = 12.dp)
+                .padding(top = 2.dp, bottom = 10.dp)
+
                 .alpha(if (uiState is BaseViewState.Loading) 0.5f else 1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -198,9 +200,10 @@ fun IncidentFormScreen(
             ExposedDropdownMenuBox(
                 expanded = typeExpandedState,
                 onExpandedChange = { typeExpandedState = it }) {
-                InputValidationTextField(modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
+                InputValidationTextField(
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
                     inputWrapper = Pair(
                         selectedIncidentType.first.incidentType ?: "", selectedIncidentType.second
                     ),
@@ -216,7 +219,8 @@ fun IncidentFormScreen(
                     expanded = typeExpandedState,
                     onDismissRequest = { typeExpandedState = false }) {
                     incidentTypeOptions.forEach { incidentType ->
-                        DropdownMenuItem(text = { Text(incidentType.incidentType.toString()) },
+                        DropdownMenuItem(
+                            text = { Text(incidentType.incidentType.toString()) },
                             onClick = {
                                 viewModel.onIncidentTypeSelected(incidentType)
                                 typeExpandedState = false
@@ -280,7 +284,8 @@ fun IncidentFormScreen(
                         openBottomSheet = false
                     }
                 ) {
-                    LocationInputScreen(predictions,
+                    LocationInputScreen(
+                        predictions,
                         locationSearchText,
                         previewSelectedLocation,
                         onLocationSearchUpdated = {

@@ -3,6 +3,7 @@ package com.srg.neighbourhoodwatchcompanion
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -26,7 +28,9 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
 import com.srg.neighbourhoodwatchcompanion.common.showToast
 import com.srg.neighbourhoodwatchcompanion.domain.usecase.home.GetUserInfoUseCase
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.DarkCharcoal
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.NeighbourhoodWatchCompanionTheme
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.White
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.NavGraphs
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.DashboardScreenDestination
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,7 +57,6 @@ class MainActivity : ComponentActivity() {
         }
         val finish: () -> Unit = backPressHandler()
 
-
         lifecycleScope.launch {
             isLoggedIn = supabaseAuth.loadFromStorage()
             if (isLoggedIn) {
@@ -63,15 +66,14 @@ class MainActivity : ComponentActivity() {
         }.invokeOnCompletion {
             showSplashScreen = false
             WindowCompat.setDecorFitsSystemWindows(window, false)
-
             setContent {
-                enableEdgeToEdge()
-                /** FOR SETTING STATUS BAR COLOR
-                 * statusBarStyle = SystemBarStyle.light(
-                WarningColor.toArgb(),
-                WarningColor.toArgb())
-                 * */
+
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.light(White.toArgb(), DarkCharcoal.toArgb()),
+                )
+
                 NeighbourhoodWatchCompanionTheme {
+
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(
@@ -155,14 +157,5 @@ fun RootView(
         ) {
 
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NeighbourhoodWatchCompanionTheme {
-//        Greeting("hello Sheershak")
     }
 }

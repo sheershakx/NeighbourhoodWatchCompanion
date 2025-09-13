@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -30,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.utils.toDestinationsNavigator
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.colors
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.typo
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.MapViewScreenDestination
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.SettingsViewScreenDestination
@@ -46,20 +49,20 @@ val bottomNavigationScreens = listOf(
     BottomNavigationScreens(
         "Home",
         HomeViewScreenDestination,
-        Icons.Filled.Home,
-        Icons.Outlined.Home
+        Icons.Outlined.Home,
+        Icons.Filled.Home
     ),
     BottomNavigationScreens(
         "Mapview",
         MapViewScreenDestination,
-        Icons.Filled.LocationOn,
-        Icons.Outlined.LocationOn
+        Icons.Outlined.LocationOn,
+        Icons.Filled.LocationOn
     ),
     BottomNavigationScreens(
         "Settings",
         SettingsViewScreenDestination,
-        Icons.Filled.Settings,
-        Icons.Outlined.Settings
+        Icons.Outlined.Settings,
+        Icons.Filled.Settings
     )
 )
 
@@ -110,20 +113,28 @@ object CustomBottomAndTopBars {
             it.destination.route == currentDestination?.route
         }
         if (showBottomNavBar) {
-            NavigationBar {
+            NavigationBar(
+                containerColor = colors.surface,
+                contentColor = colors.onSurface,
+            ) {
                 bottomNavigationScreens.forEach { topLevelRoute ->
                     val isSelected =
                         selectedDestination?.equals(topLevelRoute.destination.route) == true
                     Timber.d("Navigation bar sroute : $selectedDestination")
                     Timber.d("Navigation bar : ${topLevelRoute.destination.route}")
-                    NavigationBarItem(icon = {
-                        Icon(
-                            if (isSelected) topLevelRoute.selectedIcon else topLevelRoute.unselectedIcon,
-                            contentDescription = topLevelRoute.name
-                        )
-                    },
-                        label = { Text(topLevelRoute.name) },
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                if (isSelected) topLevelRoute.selectedIcon else topLevelRoute.unselectedIcon,
+                                contentDescription = topLevelRoute.name
+                            )
+                        },
+                        label = { Text(topLevelRoute.name, style = typo.labelSmall) },
                         selected = isSelected,
+                        colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = colors.primary,
+                            selectedIconColor = colors.onPrimary
+                        ),
                         onClick = {
                             destinationsNavigator.navigate(topLevelRoute.destination) {
 

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class IncidentLocationInformation(
     @SerialName("place_id") val placeId: String,
-    @SerialName("incident_id") val incidentId: String?=null,
+    @SerialName("incident_id") val incidentId: String? = null,
     @SerialName("lat") val lat: Double,
     @SerialName("lng") val lng: Double,
     @SerialName("primary_text") val primaryText: String,
@@ -21,5 +21,16 @@ data class IncidentLocationInformation(
             primaryText = "",
             secondaryText = ""
         )
+    }
+}
+
+
+data class LatLngData(
+    val latitude: Double,
+    val longitude: Double
+){
+    companion object{
+        fun empty() = LatLngData(0.0,0.0)
+
     }
 }

@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.compose.destination)
     implementation(libs.accompanist.permissions)
+    implementation(libs.androidx.compose.material3)
     ksp(libs.compose.destination.ksp)
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.auth)
