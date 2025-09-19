@@ -20,7 +20,7 @@ import com.srg.neighbourhoodwatchcompanion.presenter.theme.typo
 
 @Composable
 fun InputValidationTextField(
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     inputWrapper: Pair<String, String>,
     placeHolder: String,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -32,6 +32,7 @@ fun InputValidationTextField(
     val hasError = inputWrapper.second.isNotEmpty()
     Column(modifier = Modifier.height(IntrinsicSize.Min)) {
         OutlinedTextField(
+            shape = RoundedCornerShape(12.dp),
             modifier = modifier.fillMaxWidth(),
             maxLines = 1,
             value = inputWrapper.first,
