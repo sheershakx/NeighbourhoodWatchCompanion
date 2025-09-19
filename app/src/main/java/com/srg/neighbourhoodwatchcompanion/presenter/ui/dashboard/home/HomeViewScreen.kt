@@ -101,7 +101,7 @@ fun HomeViewScreen(
         disabledContentColor = Color.Black
     )
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(locationPermissionsState.allPermissionsGranted) {
         PermissionHelper.handleLocationPermissionRequest(
             locationPermissionsState,
             locationPermissionRequested,
