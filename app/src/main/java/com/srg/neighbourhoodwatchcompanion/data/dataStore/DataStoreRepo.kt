@@ -75,7 +75,7 @@ class DataStoreRepo @Inject constructor(
 
     }
 
-    suspend fun clearUser() {
+    suspend fun clearAllData() {
         dataStore.edit { it.clear() }
     }
 

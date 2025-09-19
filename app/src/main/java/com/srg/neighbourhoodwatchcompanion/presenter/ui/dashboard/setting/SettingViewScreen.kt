@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,18 +26,41 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.srg.framework.base.mvi.BaseViewState
+import com.srg.framework.extension.cast
 import com.srg.neighbourhoodwatchcompanion.AppNavigator
 import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.colors
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.typo
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.dashboard.home.HomeState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @BottomNavGraph
 @Composable
 fun SettingsViewScreen(
+    viewModel: SettingViewModel = hiltViewModel(),
     appNavigator: AppNavigator
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is BaseViewState.Data -> {
+                val data = uiState.cast<BaseViewState.Data<SettingState>>().value
+                if (data.navigateToLoginScreen == true) {
+                    appNavigator.openLoginScreen()
+                    viewModel.clearState()
+                }
+            }
+
+            else -> {}
+        }
+    }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -71,6 +95,11 @@ fun SettingsViewScreen(
             SettingsSection("About") {
                 SettingsNavItem(icon = Icons.Default.Build, title = "Contact Us") {
                     appNavigator.openContactUsScreen()
+                }
+            }
+            SettingsSection("Logout") {
+                SettingsNavItem(icon = Icons.AutoMirrored.Filled.ExitToApp, title = "Logout") {
+                    viewModel.onTriggerEvent(SettingEvent.SignOutEvent)
                 }
             }
         }

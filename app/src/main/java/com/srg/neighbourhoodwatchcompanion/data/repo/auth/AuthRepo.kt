@@ -9,6 +9,8 @@ interface AuthRepo {
     suspend fun loginUser(userEmail: String, userPassword: String)
     suspend fun registerUser(email: String, password: String)
 
+    suspend fun signOutUser()
+
 }
 
 class AuthRepoImpl @Inject constructor(
@@ -24,6 +26,10 @@ class AuthRepoImpl @Inject constructor(
 
     override suspend fun registerUser(email: String, password: String) {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun signOutUser() {
+        supabaseAuth.signOut()
     }
 
 }

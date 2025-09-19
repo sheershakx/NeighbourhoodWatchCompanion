@@ -1,5 +1,6 @@
 package com.srg.neighbourhoodwatchcompanion.presenter.ui.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import com.srg.neighbourhoodwatchcompanion.common.MediumSpacer
 import com.srg.neighbourhoodwatchcompanion.common.SmallSpacer
 import com.srg.neighbourhoodwatchcompanion.common.StringResources
 import com.srg.neighbourhoodwatchcompanion.common.showToast
+import com.srg.neighbourhoodwatchcompanion.presenter.theme.colors
 import io.github.jan.supabase.exceptions.BadRequestRestException
 
 @RootNavGraph(start = true)
@@ -86,7 +88,8 @@ fun LoginScreen(
     }
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(color = colors.surface),
         verticalArrangement = Arrangement.Center
     ) {
 

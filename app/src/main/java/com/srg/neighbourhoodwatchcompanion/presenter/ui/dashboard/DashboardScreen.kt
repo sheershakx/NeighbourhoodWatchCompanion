@@ -11,9 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
@@ -22,17 +23,18 @@ import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.srg.neighbourhoodwatchcompanion.AppNavigatorImpl
 import com.srg.neighbourhoodwatchcompanion.BottomNavGraph
 import com.srg.neighbourhoodwatchcompanion.common.widgets.CustomBottomAndTopBars
-import com.srg.neighbourhoodwatchcompanion.presenter.theme.YellowCard
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.colors
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.NavGraphs
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.HomeViewScreenDestination
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LoginScreenDestination
+import kotlinx.coroutines.delay
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("RestrictedApi")
 @BottomNavGraph(start = true)
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(nvc: NavController) {
     val navHostController = rememberNavController()
     val customBottomTopBarObject = CustomBottomAndTopBars
 
@@ -45,6 +47,7 @@ fun DashboardScreen() {
     BackHandler {
         Timber.d("Back Pressed :Dashboard= ${navHostController.currentBackStackEntry?.destination?.displayName}")
     }
+
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -84,8 +87,12 @@ fun DashboardScreen() {
             ),
 
             dependenciesContainerBuilder = {
-                //todo:: vvi for error related to DI with APp Navigator
-                dependency(AppNavigatorImpl(destinationsNavigator, navHostController))
+                /**
+                 * Its important to pass root navController to AppNavigatorImpl instead of new instance of navController
+                 * to make sure than you would me able to make cross navgraph navigation like dashboard <-> login screen
+                 * without any issues.
+                 * */
+                dependency(AppNavigatorImpl(destinationsNavigator, nvc as NavHostController))
             }
         )
     }

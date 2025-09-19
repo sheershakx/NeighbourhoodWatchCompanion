@@ -67,13 +67,17 @@ class HomeViewModel @Inject constructor(
 
             HomeEvent.GetNeighbourhoodNameEvent -> {
                 safeLaunch {
-                    val neighbourhoodName = getNeighbourhoodName()
-                    _neighbourhoodName.tryEmit(neighbourhoodName)
-                    dataStoreRepo.saveUserLocationData(
-                        currentLocationData.value.latitude,
-                        currentLocationData.value.longitude,
-                        neighbourhoodName.toString()
-                    )
+                    getNeighbourhoodName { it ->
+                        _neighbourhoodName.tryEmit(it)
+                        safeLaunch {
+                            dataStoreRepo.saveUserLocationData(
+                                currentLocationData.value.latitude,
+                                currentLocationData.value.longitude,
+                                it.orEmpty()
+                            )
+                        }
+
+                    }
                 }
             }
 
@@ -85,7 +89,9 @@ class HomeViewModel @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    suspend fun getNeighbourhoodName(): String? {
+    suspend fun getNeighbourhoodName(
+        refreshedNeighbourhoodName: (String?) -> Unit
+    ) {
         // Check cache: if user hasn't moved > 500m, reuse previous neighborhood
         suspend fun getCachedLatitude(): String? = dataStoreRepo.userLatitude.firstOrNull()
         suspend fun getCachedLongitude(): String? = dataStoreRepo.userLongitude.firstOrNull()
@@ -94,7 +100,9 @@ class HomeViewModel @Inject constructor(
         val cachedLat = getCachedLatitude()
         val cachedLng = getCachedLongitude()
         val cachedNeighbourhood = getCachedNeighbourhood()
-        if (cachedLat != null && cachedLng != null) {
+
+
+        if (!cachedLat.isNullOrEmpty() && !cachedLng.isNullOrEmpty() && !cachedNeighbourhood.isNullOrEmpty()) {
             val distance = FloatArray(1)
             Location.distanceBetween(
                 currentLocationData.value.latitude,
@@ -104,26 +112,25 @@ class HomeViewModel @Inject constructor(
                 distance
             )
             if (distance[0] < 500) { // 500 meters threshold
-                return cachedNeighbourhood
+                return refreshedNeighbourhoodName(cachedNeighbourhood)
             }
         }
 
         //  Try Android Geocoder first (offline, free)
-        return try {
+        try {
             val geocoder = Geocoder(context, Locale.getDefault())
-            var neighbourhood: String? = null
             // API 33+
             geocoder.getFromLocation(
                 currentLocationData.value.latitude,
                 currentLocationData.value.longitude,
                 1
             ) { addresses ->
-                neighbourhood = addresses.firstOrNull()?.thoroughfare
+                refreshedNeighbourhoodName(addresses.firstOrNull()?.thoroughfare)
             }
-            return neighbourhood
+            return
         } catch (e: Exception) {
             Timber.e("Failed to get neighborhood: ${e.message}")
-            "An Error Occurred!"
+            refreshedNeighbourhoodName("An Error Occurred!")
         }
     }
 }

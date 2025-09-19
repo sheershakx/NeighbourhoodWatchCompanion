@@ -18,7 +18,6 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +31,7 @@ import com.srg.neighbourhoodwatchcompanion.presenter.theme.DarkCharcoal
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.NeighbourhoodWatchCompanionTheme
 import com.srg.neighbourhoodwatchcompanion.presenter.theme.White
 import com.srg.neighbourhoodwatchcompanion.presenter.ui.NavGraphs
-import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.DashboardScreenDestination
+import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.LoginScreenDestination
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.jan.supabase.auth.Auth
 import kotlinx.coroutines.launch
@@ -117,12 +116,12 @@ fun RootView(
     // not asking for app exit confirmation and exitting app
     // and is acting different when splash-> dashboard vs
     // from login->dashboard)
-    var navHostController = rememberNavController()
+    val navHostController = rememberNavController()
     val currentBackStackEntry = navHostController.currentBackStackEntryAsState()
     val currentDestination =
         currentBackStackEntry.value?.destination?.route ?: NavGraphs.root.startRoute
-    val startRoute = if (isLoggedIn) DashboardScreenDestination else NavGraphs.root.startRoute
     val startGraph = if (isLoggedIn) NavGraphs.bottom else NavGraphs.root
+    val startRoute= if (isLoggedIn) NavGraphs.bottom else LoginScreenDestination
 
     BackHandler {
         Timber.d("Back pressed main: ${navHostController.currentBackStackEntry?.destination?.route}")
@@ -145,13 +144,14 @@ fun RootView(
         //attach any view as per app state and requirement
         DestinationsNavHost(
             navController = navHostController,
-            navGraph = startGraph, // Auto-generated navigation graph
+            navGraph = NavGraphs.root,
+            startRoute = startRoute,// Auto-generated navigation graph
             dependenciesContainerBuilder = {
                 dependency(
                     AppNavigatorImpl(
                         destinationsNavigator,
                         navHostController
-                    )
+                    ),
                 )
             }
         ) {

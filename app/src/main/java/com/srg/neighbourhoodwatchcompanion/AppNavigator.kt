@@ -36,21 +36,24 @@ interface AppNavigator {
 
 class AppNavigatorImpl constructor(
     val destinationNavigator: DestinationsNavigator,
-    val navHostController: NavHostController
+    val navHostController: NavHostController    //always gets root graph navHostController
 ) :
     AppNavigator {
 
     override fun openRegisterScreen() {
         destinationNavigator.navigate(RegisterScreenDestination) {
-            popUpTo(LoginScreenDestination) { inclusive = false }
+            popUpTo(LoginScreenDestination)
         }
 
     }
 
     override fun openLoginScreen() {
-        destinationNavigator.navigate(RegisterScreenDestination) {
-            popUpTo(DashboardScreenDestination) { inclusive = true }
+        navHostController.navigate(LoginScreenDestination.route) {
+            popUpTo(DashboardScreenDestination.route) { inclusive = true }
+            launchSingleTop = true
         }
+
+
     }
 
     override fun openDashboardScreen() {
