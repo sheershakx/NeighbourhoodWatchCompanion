@@ -6,7 +6,7 @@
     <style name="Theme.NeighbourhoodWatchCompanion.Splash" parent="Theme.SplashScreen">
         <!-- Customize splash screen background -->
         <item name="windowSplashScreenBackground">@color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
         <item name="postSplashScreenTheme">@style/Theme.NeighbourhoodWatchCompanion</item>
     </style>
 
