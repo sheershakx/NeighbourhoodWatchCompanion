@@ -22,6 +22,7 @@ import com.srg.neighbourhoodwatchcompanion.presenter.ui.destinations.RegisterScr
 interface AppNavigator {
     fun openRegisterScreen()
     fun openLoginScreen()
+    fun openLoginScreenFromRegisterScreen()
     fun openDashboardScreen()
     fun showHomeScreen()
     fun showMapScreen()
@@ -54,6 +55,13 @@ class AppNavigatorImpl constructor(
         }
 
 
+    }
+
+    override fun openLoginScreenFromRegisterScreen() {
+        destinationNavigator.navigate(LoginScreenDestination){
+            popUpTo(RegisterScreenDestination){ inclusive=true}
+            launchSingleTop=true
+        }
     }
 
     override fun openDashboardScreen() {

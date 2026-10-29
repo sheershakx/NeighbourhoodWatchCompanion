@@ -26,7 +26,6 @@ interface IncidentRepo {
     suspend fun insertImagePaths(incidentImage: IncidentImage)
     suspend fun insertLocationInformation(locationInformation: IncidentLocationInformation)
     suspend fun getDetailedIncidents(): List<GetDetailedIncident>
-    suspend fun getDetailedIncidentsById(): GetDetailedIncident
     suspend fun getIncidentImagesSignedUrlsByIncidentId(incidentId: String): List<String>
 }
 
@@ -70,10 +69,6 @@ class IncidentRepoImpl @Inject constructor(
 
     override suspend fun getDetailedIncidents(): List<GetDetailedIncident> {
         return postgrest.rpc("get_detailed_incidents").decodeList<GetDetailedIncident>()
-    }
-
-    override suspend fun getDetailedIncidentsById(): GetDetailedIncident {
-        TODO("Not yet implemented")
     }
 
     override suspend fun getIncidentImagesSignedUrlsByIncidentId(incidentId: String): List<String> {

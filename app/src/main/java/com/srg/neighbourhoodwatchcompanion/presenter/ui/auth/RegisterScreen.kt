@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.srg.framework.base.mvi.BaseViewState
 import com.srg.framework.extension.cast
+import com.srg.neighbourhoodwatchcompanion.AppNavigator
 import com.srg.neighbourhoodwatchcompanion.common.InputValidationTextField
 import com.srg.neighbourhoodwatchcompanion.common.MediumSpacer
 import com.srg.neighbourhoodwatchcompanion.common.SmallSpacer
@@ -41,7 +42,8 @@ import io.github.jan.supabase.exceptions.BadRequestRestException
 @Destination
 @Composable
 fun RegisterScreen(
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
+    appNavigator: AppNavigator
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
@@ -60,7 +62,8 @@ fun RegisterScreen(
             is BaseViewState.Data -> {
                 val authState = uiState.cast<BaseViewState.Data<AuthState>>().value
                 authState.userRegistrationState?.let {
-                    context.showToast("User registered successfully! ${it.email}")
+                    context.showToast("User registered successfully!")
+                    appNavigator.openLoginScreenFromRegisterScreen()
                 }
             }
 
